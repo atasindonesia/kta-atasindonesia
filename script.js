@@ -513,27 +513,49 @@ function initCropperAdm(e, rasio) { const file = e.target.files[0]; if(!file) re
 
 async function saveProvinsi(e) { 
     e.preventDefault(); 
+    
+    // Ambil semua data dari Modal Tambah/Edit
     const data = { 
         id: document.getElementById('p-id').value, 
         nama_provinsi: document.getElementById('p-nama').value, 
         nama_admin: document.getElementById('p-admin').value, 
         hp_admin: document.getElementById('p-hp').value, 
         wa_admin: document.getElementById('p-wa').value, 
-        link_pendaftaran: document.getElementById('p-link').value, 
+        link_pendaftaran: document.getElementById('p-link').value, // Ini Kolom URL
         jumlah_daftar: document.getElementById('p-df').value, 
         jumlah_kta: document.getElementById('p-kta').value, 
         jumlah_aktif: document.getElementById('p-ak').value, 
         jumlah_tidak_aktif: document.getElementById('p-tak').value, 
-        kode_shard: document.getElementById('p-shard').value 
+        kode_shard: document.getElementById('p-shard').value // Wajib terisi untuk login
     }; 
+
+    // Validasi sederhana: Jangan biarkan Kode Shard kosong
+    if (!data.kode_shard) {
+        Swal.fire('Peringatan', 'Kode Shard wajib diisi agar sistem login berfungsi!', 'warning');
+        return;
+    }
+
     try {
-        showLoadingAnim('Menyimpan Data Provinsi');
-        await callGAS('saveProvinsi', data);
-        closeModalPortal(); 
-        refreshAdminData('provinsi'); 
-        Swal.fire({toast:true, position:'top-end', showConfirmButton:false, timer:3000, icon:'success', title:'Data Tersimpan'});
+        showLoadingAnim('Menyimpan ke Database Master');
+        const res = await callGAS('saveProvinsi', data);
+        
+        closeModalPortal(); // Tutup modal setelah sukses
+        
+        // Bersihkan cache agar data baru langsung muncul tanpa refresh
+        localStorage.removeItem('sapaAppDataCache');
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil Tersimpan',
+            text: res,
+            timer: 2000,
+            showConfirmButton: false
+        }).then(() => {
+            // Muat ulang data portal
+            refreshAdminData('provinsi');
+        });
     } catch (err) {
-        Swal.fire('Error', err.message, 'error');
+        Swal.fire('Error Server', err.message, 'error');
     }
 }
 
