@@ -874,14 +874,23 @@ function renderLogin() {
   var btnRef = document.querySelector('#wrapper-kta .btn-refresh-float'); if(btnRef) btnRef.style.display = 'none';
   var s = appData.settings || {nama:'Loading...', singkatan:'APP', logo:''};
   var cleanLogo = getImageUrl(s.logo);
+  
+  // --- LOGIKA PEMBERSIH NAMA PROVINSI (ANTI-DOBEL) ---
+  let rawProv = (s.provinsi_default || "").toUpperCase();
+  // Hapus kata "PROVINSI" di awal jika sudah ada
+  rawProv = rawProv.replace(/^PROVINSI\s*/, "").trim();
+  // Jika setelah dihapus ternyata kosong, beri nama peringatan
+  if (rawProv === "") rawProv = "NAMA BELUM DIATUR";
+  let displayProv = "PROVINSI " + rawProv;
+  // ---------------------------------------------------
 
   var html = '<div class="login-body"><div class="marquee-bar"><marquee>📢 '+ (s.running||'Selamat Datang') +'</marquee></div>';
   html += '<div class="glass-card"><img src="'+cleanLogo+'" class="logo-anim" onerror="this.src=\'https://via.placeholder.com/100?text=LOGO\';">';
   
-  html += '<h3>'+s.singkatan+'</h3><p style="color:var(--text-gray);margin-bottom:25px;font-weight:600;">'+s.nama+'<br><span style="text-transform:uppercase; color:#4f46e5;">PROVINSI '+(s.provinsi_default||'')+'</span></p>';
+  // Terapkan displayProv di sini
+  html += '<h3>'+s.singkatan+'</h3><p style="color:var(--text-gray);margin-bottom:25px;font-weight:600;">'+s.nama+'<br><span style="text-transform:uppercase; color:#4f46e5;">'+displayProv+'</span></p>';
   
   html += '<form onsubmit="doLogin(event)"><input type="text" id="u" placeholder="Username/NIA" required>';
-
   html += '<div style="position:relative; margin-top:10px;"><input type="password" id="p" placeholder="Password" required style="padding-right:45px;"><i class="fa fa-eye" id="togglePass" onclick="togglePasswordLogin()" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer; color:#64748b; font-size:18px;"></i></div>';
   html += '<button type="submit" class="btn-glow">MASUK</button><div style="margin-top:15px; text-align:center;"><a onclick="showForgotInfo()" style="color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline;">Lupa Password?</a></div></form>';
 
@@ -1105,10 +1114,15 @@ function openRegistrationModal() {
     if (appData.settings) { 
         document.getElementById('lblRegOrg').innerText = appData.settings.nama; 
         
-        // Memaksa tulisan jadi "PROVINSI (NAMA PROV)" dan Huruf Besar
-        document.getElementById('lblRegProv').innerText = "PROVINSI " + (appData.settings.provinsi_default || "").toUpperCase(); 
+        // --- LOGIKA PEMBERSIH NAMA PROVINSI (ANTI-DOBEL) ---
+        let rawProv = (appData.settings.provinsi_default || "").toUpperCase();
+        rawProv = rawProv.replace(/^PROVINSI\s*/, "").trim();
+        if (rawProv === "") rawProv = "NAMA BELUM DIATUR";
+        let displayProv = "PROVINSI " + rawProv;
         
-        // Memunculkan Logo Organisasi di Formulir Pendaftaran
+        document.getElementById('lblRegProv').innerText = displayProv; 
+        // ---------------------------------------------------
+        
         const logoEl = document.getElementById('lblRegLogo');
         if (logoEl && appData.settings.logo) {
             logoEl.src = getImageUrl(appData.settings.logo);
@@ -1120,12 +1134,7 @@ function openRegistrationModal() {
     
     var provSelect = document.getElementById('r_prov'); 
     if (provSelect.options.length <= 1) { loadProvinces(); } 
-    
-    setTimeout(function() { 
-        var pId = setProvDropdown('r_prov', appData.settings.provinsi_default); 
-        if(pId) loadRegencies(pId, 'r_kab'); 
-    }, 800); 
-    
+    setTimeout(function() { var pId = setProvDropdown('r_prov', appData.settings.provinsi_default); if(pId) loadRegencies(pId, 'r_kab'); }, 800); 
     openModal('regModal'); 
 }
 
