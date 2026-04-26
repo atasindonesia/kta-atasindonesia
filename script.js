@@ -1,7 +1,7 @@
 // ====================================================================
 // 1. PENGATURAN MESIN API MASTER
 // ====================================================================
-const MASTER_API_URL = "https://script.google.com/macros/s/AKfycbwh4qsdaaW5DH06IO2XEEUDXrccLoBnoPZ_TmYZqVQsJobhfKW6KK2z3it4NummI9P7nw/exec";
+const MASTER_API_URL = "https://script.google.com/macros/s/AKfycbzlTycHaa-nE2U2nuAYqV5rXLUJZf3fa5ZTPamTw8GCCSEOZIqDhsPraKNKMyQfv9J_jw/exec";
 
 // Variabel untuk mengingat user sedang buka provinsi apa
 let KODE_SHARD_AKTIF = ""; 
@@ -624,7 +624,6 @@ async function execSaveAdminPusat(e) {
 
 function getBase64(file) { return new Promise((res, rej) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload=()=>res(reader.result); reader.onerror=e=>rej(e); }); }
 
-// PWA Logic Portal
 const pwaInstallModal = document.getElementById('pwa-install-modal');
 const btnNantiPwa = document.getElementById('btn-nanti-pwa');
 const btnInstallPwaModal = document.getElementById('btn-install-pwa-modal');
@@ -1214,3 +1213,409 @@ function resetPass(){ var r = document.getElementById('m_row').value; if(!r || r
 function openChangePass() { openModal('passModal'); }
 function handlePassChange(e) { e.preventDefault(); var oldP = document.getElementById('cp_old').value; var newP = document.getElementById('cp_new').value; var r = appData.user.data.row_index; closeModalKTA('passModal'); showLoader(true); apiCall('changeOwnPassword', {cp_row: r, cp_old: oldP, cp_new: newP}).then(res => { showLoader(false); if(res.status === 'success') { Swal.fire({ icon:'success', title:'Sukses', text:'Password berhasil diubah!', timer:2000, showConfirmButton:false }); } else { Swal.fire('Gagal', res.message, 'error'); } }).catch(err => { showLoader(false); Swal.fire('Error', err.message, 'error'); }); }
 
+function generateKTA() {
+    var d = currentDetailMember;
+    if (!d) return Swal.fire('Error', 'Pilih anggota', 'error');
+    showLoader(true, 'MEMBUAT KTA DIGITAL...');
+
+    const loadImage = (src) => {
+        return new Promise((resolve) => {
+            if (!src) return resolve(null); const img = new Image(); img.crossOrigin = "Anonymous"; img.onload = () => resolve(img); img.onerror = () => resolve(null); img.src = src;
+        });
+    };
+
+    apiCall('getKtaResources', {photoUrl: d.foto, logoUrl: appData.settings.logo}).then(async function(assets) {
+        try { await document.fonts.load("bold 21px Oswald"); } catch(e) { console.log(e); }
+        const [bgImg, logoImg, photoImg] = await Promise.all([ loadImage(assets.bg), loadImage(assets.logo), loadImage(assets.photo) ]);
+        var canvas = document.getElementById('ktaCanvas'); var ctx = canvas.getContext('2d');
+        
+        if (bgImg) { 
+            ctx.drawImage(bgImg, 0, 0, 600, 380); 
+        } else { 
+            var grd = ctx.createLinearGradient(0, 0, 600, 0); 
+            grd.addColorStop(0, "#4f46e5"); grd.addColorStop(1, "#7c3aed"); 
+            ctx.fillStyle = grd; ctx.fillRect(0, 0, 600, 380); 
+        }
+
+        var nama = d.nama.length > 30 ? d.nama.substring(0, 30) + "..." : d.nama; 
+        ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 0; ctx.fillStyle = "black"; ctx.font = "bold 21px Oswald"; 
+        var leftX = 160; var topY = 160; 
+        ctx.fillText("N I A      : " + (d.nia_lengkap || "-"), leftX, topY); 
+        ctx.fillText("Nama     : " + nama, leftX, topY + 28); 
+        ctx.fillText("Instansi : " + (d.unit || "-"), leftX, topY + 56); 
+        ctx.fillText("Provinsi : " + (d.provinsi || "-"), leftX, topY + 84);
+
+        var baseUrl = window.location.origin + window.location.pathname;
+        var verifyUrl = baseUrl + "?verify=" + encodeURIComponent(d.nia_lengkap);
+
+        var qr = new QRious({ value: verifyUrl, size: 250, level: 'H' }); 
+        const qrImg = await loadImage(qr.toDataURL());
+        
+        if (qrImg) { 
+            ctx.fillStyle = "white"; 
+            ctx.fillRect(9, 277, 96, 96); 
+            ctx.drawImage(qrImg, 9, 277, 96, 96); 
+
+            if (logoImg) {
+                var qrCenterX = 9 + (96 / 2);
+                var qrCenterY = 277 + (96 / 2);
+                var logoSize = 22; 
+                var bgSize = 23;   
+                ctx.fillStyle = "white";
+                ctx.fillRect(qrCenterX - (bgSize/2), qrCenterY - (bgSize/2), bgSize, bgSize);
+                ctx.drawImage(logoImg, qrCenterX - (logoSize/2), qrCenterY - (logoSize/2), logoSize, logoSize);
+            }
+        }
+
+        var photoX = 25; var photoY = 120; var fixedHeight = 132; var fixedWidth = 99; 
+        if (photoImg) { 
+            var ratio = photoImg.width / photoImg.height; var newWidth = fixedHeight * ratio; 
+            ctx.lineWidth = 5; ctx.strokeStyle = "white"; ctx.strokeRect(photoX, photoY, newWidth, fixedHeight); 
+            ctx.drawImage(photoImg, photoX, photoY, newWidth, fixedHeight); 
+        } else { 
+            ctx.fillStyle = "#cbd5e1"; ctx.fillRect(photoX, photoY, fixedWidth, fixedHeight); 
+            ctx.fillStyle = "#64748b"; ctx.font = "12px Arial"; ctx.fillText("No Foto", photoX + 25, photoY + 70); 
+        }
+
+        showLoader(false); openModal('ktaGenModal');
+        var btnDownload = document.getElementById('downloadKtaBtn'); btnDownload.href = canvas.toDataURL("image/png");
+        var namaAman = (d.nama || "Anggota").replace(/[^a-zA-Z0-9]/g, "_"); btnDownload.download = "KTA_Digital_" + namaAman + ".png";
+    }).catch(function(err) { showLoader(false); Swal.fire("Gagal", "Koneksi lambat/Error Server: " + err.message, "error"); });
+}
+
+function checkAndOpenKta(m) { if(!m) m = currentDetailMember; if(isNiaComplete(m)) { currentDetailMember = m; generateKTA(); } else { Swal.fire({ icon: 'warning', title: 'Akses Ditolak', text: 'Anggota ini belum memiliki NIA lengkap.' }); } }
+function checkAndDownloadBg(m) { if(!m) m = currentDetailMember; if(isNiaComplete(m)) { downloadBackground(); } else { Swal.fire({ icon: 'warning', title: 'Akses Ditolak', text: 'Anggota ini belum memiliki NIA lengkap.' }); } }
+function isNiaComplete(m) { if (m && m.kode_ad && m.kode_ae && m.kode_af && m.nia_lengkap && m.nia_lengkap.length > 5) { return true; } return false; }
+
+function downloadBackground() { 
+    showLoader(true, 'MENYIAPKAN GAMBAR BELAKANG...'); 
+    apiCall('getBackBackgroundBase64').then(function(base64Data){ 
+        showLoader(false); 
+        if(base64Data && base64Data.length > 50) { 
+            var link = document.createElement('a'); link.href = base64Data; link.download = "KTA_Belakang_" + (appData.user.data.nama || "Anggota") + ".png"; 
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Gambar KTA Belakang sudah diunduh.', timer: 2000, showConfirmButton: false });
+        } else { Swal.fire('Gagal', 'Gambar Background Belakang belum disetting.', 'error'); } 
+    }).catch(function(err){ showLoader(false); Swal.fire('Error', err.message, 'error'); }); 
+}
+
+function validateTwoDigit(el) { let val = el.value.replace(/[^0-9]/g, ''); if (val.length > 2) { Swal.fire('Format Salah', 'Kode Wilayah maksimal 2 digit angka.', 'warning'); el.value = ""; } else if (val.length === 1) { el.value = '0' + val; } else { el.value = val; } updateStatusAuto(); }
+function validateFourDigit(el) { let val = el.value.replace(/[^0-9]/g, ''); if (val.length > 4) { Swal.fire('Format Salah', 'Nomor Urut maksimal 4 digit angka.', 'warning'); el.value = ""; } else if (val.length > 0 && val.length < 4) { el.value = val.padStart(4, '0'); } else { el.value = val; } updateStatusAuto(); }
+function sanitizeNumber(el) { el.value = el.value.replace(/[^0-9]/g, ''); updateStatusAuto(); }
+
+function openContactPopup() {
+    var s = appData.settings || {}; 
+    var hp = String(s.hp || ''); 
+    var web = String(s.web || ''); 
+    var email = String(s.email || '');
+
+    var htmlBtns = '<div style="display:flex; flex-direction:column; gap:12px; margin-top:20px;">';
+    
+    if(hp && hp.length > 3) {
+        var cleanNumber = hp.replace(/[^0-9]/g, ''); 
+        var waNumber = cleanNumber; 
+        if (waNumber.startsWith('0')) { waNumber = '62' + waNumber.substring(1); }
+        var telNumber = cleanNumber; 
+        if (waNumber.startsWith('62')) { telNumber = '+' + waNumber; }
+        
+        htmlBtns += '<a href="https://wa.me/'+waNumber+'" target="_blank" class="btn btn-green" style="width:100%; justify-content:center; padding:12px;"><i class="fab fa-whatsapp" style="font-size:18px;"></i> WA Admin Pusat</a>';
+        htmlBtns += '<button onclick="window.location.href=\'tel:'+telNumber+'\'" class="btn btn-orange" style="width:100%; justify-content:center; padding:12px; border:none; cursor:pointer; font-family:inherit;"><i class="fa fa-phone" style="font-size:18px;"></i> Telepon Bantuan</button>';
+    }
+    
+    if(web && web.length > 3) { 
+        var webUrl = web.startsWith('http') ? web : 'https://' + web; 
+        htmlBtns += '<a href="'+webUrl+'" target="_blank" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px;"><i class="fa fa-globe" style="font-size:18px;"></i> Website Resmi</a>'; 
+    }
+    
+    if(email && email.length > 3) { 
+        htmlBtns += '<button onclick="window.location.href=\'mailto:'+email+'\'" class="btn btn-outline" style="width:100%; justify-content:center; padding:12px; border-color:#e2e8f0; cursor:pointer; font-family:inherit;"><i class="fa fa-envelope" style="font-size:18px;"></i> Email Kami</button>'; 
+    }
+    
+    if(hp.length < 4 && web.length < 4 && email.length < 4) { 
+        htmlBtns += '<p style="color:red; font-size:13px;">Maaf, kontak admin belum diatur.</p>'; 
+    }
+    
+    htmlBtns += '</div>';
+    Swal.fire({ title: 'Hubungi Kami', text: 'Pilih saluran bantuan di bawah ini:', html: htmlBtns, showConfirmButton: false, showCloseButton: true });
+}
+
+function renderValidationPage(nia) {
+    showLoader(true, "MEMVALIDASI KTA...");
+    
+    apiCall('verifyKta', { nia: nia }).then(function(res) {
+        showLoader(false);
+        var appDiv = document.getElementById('app');
+        appDiv.classList.remove('hidden');
+
+        if(res.valid) {
+            var d = res.data;
+            window.tempPublicMember = d;
+            window.tempPublicLogo = res.orgLogo;
+
+            var stColor = d.status === 'AKTIF' ? 'color:#16a34a; background:#dcfce7;' : (String(d.status).includes('NONAKTIF') ? 'color:#dc2626; background:#fee2e2;' : 'color:#c2410c; background:#ffedd5;');
+            var cleanLogo = getImageUrl(res.orgLogo);
+            var cleanFoto = getImageUrl(d.foto);
+            var homeUrl = window.location.origin + window.location.pathname;
+
+            var html = `
+            <style>
+                .val-bottom-bar { display: none; }
+                .val-org-short { margin:0; font-family:'Poppins', sans-serif; color:var(--text-dark); font-weight:800; font-size:22px; }
+                .val-org-long { margin:0; font-size:11px; color:var(--text-gray); font-weight:500; line-height:1.3; text-transform:uppercase; }
+                
+                @media (max-width: 768px) {
+                    .val-btn-desktop { display: none !important; }
+                    .val-bottom-bar {
+                        display: flex; position: fixed; bottom: 0; left: 0; right: 0; width: 100%; height: 75px;
+                        background: white; align-items: center; justify-content: space-between;
+                        box-shadow: 0 -4px 20px rgba(0,0,0,0.08); z-index: 9999;
+                    }
+                    .val-nav-item {
+                        display: flex; flex-direction: column; align-items: center; justify-content: center;
+                        color: #64748b; font-size: 10px; cursor: pointer; font-weight: 600; transition: 0.2s;
+                    }
+                    .val-nav-item i { font-size: 22px; margin-bottom: 4px; }
+                    .val-nav-item:active { color: #4f46e5; }
+                    .val-nav-left { width: 20%; }
+                    .val-nav-right { width: 20%; }
+                    .val-nav-center { width: 60%; display: flex; justify-content: center; }
+                    
+                    .btn-val-center {
+                        background: linear-gradient(135deg, #10b981, #059669); color: white;
+                        border: none; padding: 13px 0; width: 92%; border-radius: 30px;
+                        font-weight: 700; font-size: 14px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+                        display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+                    }
+                    .btn-val-center:active { transform: scale(0.95); }
+                    .val-container { padding-bottom: 95px !important; }
+                }
+            </style>
+
+            <div class="val-container" style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--bg-body); padding:20px;">
+                <div class="glass-card" style="margin-top:0; padding:30px; text-align:center; max-width:400px; width:100%; background:white; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); animation: slideUp 0.5s ease-out;">
+                    
+                    <img src="${cleanLogo}" onerror="this.src='https://via.placeholder.com/100?text=LOGO';" style="height:65px; object-fit:contain; margin-bottom:10px;">
+                    <h3 class="val-org-short">${res.orgShort || 'ATAS INDONESIA'}</h3>
+                    <p class="val-org-long">${res.orgName}</p>
+                    
+                    <div style="margin:20px 0; padding:15px; border-radius:12px; background:#f0fdf4; border:1px solid #bbf7d0;">
+                        <i class="fa fa-check-circle" style="color:#16a34a; font-size:45px; margin-bottom:10px;"></i>
+                        <h4 style="margin:0; color:#166534; font-family:'Poppins', sans-serif;">KTA SAH & TERVALIDASI</h4>
+                    </div>
+                    
+                    <img src="${cleanFoto}" style="width:110px; height:146px; object-fit:cover; border-radius:10px; border:3px solid #e2e8f0; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+
+                    <div style="text-align:left; font-size:13px; color:var(--text-dark); background:#f8fafc; padding:15px; border-radius:12px; border:1px solid #e2e8f0;">
+                        <div style="padding:8px 0; border-bottom:1px dashed #cbd5e1; display:flex; justify-content:space-between;">
+                            <b style="color:var(--text-gray)">NIA</b> <span style="color:#4f46e5; font-weight:800; text-align:right;">${d.nia}</span>
+                        </div>
+                        <div style="padding:8px 0; border-bottom:1px dashed #cbd5e1; display:flex; justify-content:space-between;">
+                            <b style="color:var(--text-gray)">Nama</b> <span style="font-weight:600; text-align:right; max-width:65%;">${d.nama}</span>
+                        </div>
+                        <div style="padding:8px 0; border-bottom:1px dashed #cbd5e1; display:flex; justify-content:space-between;">
+                            <b style="color:var(--text-gray)">Tgl Lahir</b> <span style="text-align:right;">${d.tgl_lahir}</span>
+                        </div>
+                        <div style="padding:8px 0; border-bottom:1px dashed #cbd5e1; display:flex; justify-content:space-between;">
+                            <b style="color:var(--text-gray)">Gender</b> <span style="text-align:right;">${d.jk}</span>
+                        </div>
+                        <div style="padding:8px 0; border-bottom:1px dashed #cbd5e1; display:flex; justify-content:space-between;">
+                            <b style="color:var(--text-gray)">Unit Kerja</b> <span style="text-align:right; max-width:60%;">${d.unit}</span>
+                        </div>
+                        <div style="padding:8px 0; border-bottom:1px dashed #cbd5e1; display:flex; justify-content:space-between;">
+                            <b style="color:var(--text-gray)">Jabatan Org</b> <span style="text-align:right; max-width:60%;">${d.jabatan_org}</span>
+                        </div>
+                        <div style="padding:8px 0; border-bottom:1px dashed #cbd5e1; display:flex; justify-content:space-between;">
+                            <b style="color:var(--text-gray)">Tingkat</b> <span style="text-align:right; max-width:60%;">${d.tingkat_pengurus}</span>
+                        </div>
+                        <div style="padding:8px 0; border-bottom:1px dashed #cbd5e1; display:flex; justify-content:space-between;">
+                            <b style="color:var(--text-gray)">Kab/Kota</b> <span style="text-align:right;">${d.kabupaten}</span>
+                        </div>
+                        <div style="padding:8px 0; border-bottom:1px dashed #cbd5e1; display:flex; justify-content:space-between;">
+                            <b style="color:var(--text-gray)">Provinsi</b> <span style="text-align:right;">${d.provinsi}</span>
+                        </div>
+                        
+                        <div style="padding-top:15px; text-align:center;">
+                            <div style="font-size:11px; color:var(--text-gray); font-weight:bold; margin-bottom:5px;">STATUS ANGGOTA</div>
+                            <span style="padding:6px 15px; border-radius:20px; font-weight:800; font-size:13px; letter-spacing:0.5px; ${stColor}">${d.status}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="val-btn-desktop">
+                        <br>
+                        <button onclick="generatePublicKTA()" class="btn btn-green" style="width:100%; justify-content:center; margin-bottom:10px;"><i class="fa fa-id-badge"></i> Lihat KTA Digital</button>
+                        <button onclick="window.location.href = '${homeUrl}'" class="btn btn-outline" style="width:100%; justify-content:center;"><i class="fa fa-home"></i> Kembali ke Beranda</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="val-bottom-bar">
+                <div class="val-nav-item val-nav-left" onclick="window.location.href = '${homeUrl}'">
+                    <i class="fa fa-home"></i>
+                    <span>Beranda</span>
+                </div>
+                
+                <div class="val-nav-center">
+                    <button class="btn-val-center" onclick="generatePublicKTA()">
+                        <i class="fa fa-id-badge"></i> KTA Digital
+                    </button>
+                </div>
+                
+                <div class="val-nav-item val-nav-right" onclick="handleCloseValidation()">
+                    <i class="fa fa-times-circle" style="color:#ef4444;"></i>
+                    <span>Tutup</span>
+                </div>
+            </div>
+            `;
+            appDiv.innerHTML = html;
+        } else {
+            var homeUrl = window.location.origin + window.location.pathname;
+            var html = `
+            <div style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--bg-body); padding:20px;">
+                <div class="glass-card" style="margin-top:0; padding:30px; text-align:center; max-width:400px; width:100%; background:white; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
+                    <i class="fa fa-times-circle" style="color:#ef4444; font-size:70px; margin-bottom:15px;"></i>
+                    <h3 style="margin:0 0 10px 0; font-family:'Poppins', sans-serif; color:var(--text-dark);">KTA Tidak Dikenali</h3>
+                    <p style="color:var(--text-gray); font-size:14px; margin-bottom:25px;">Maaf, data KTA ini tidak terdaftar, tidak valid, atau telah dihapus dari sistem keanggotaan kami.</p>
+                    
+                    <button onclick="window.location.href = '${homeUrl}'" class="btn btn-primary" style="width:100%; justify-content:center;"><i class="fa fa-home"></i> Kembali ke Beranda</button>
+                </div>
+            </div>
+            `;
+            appDiv.innerHTML = html;
+        }
+    }).catch(function(err) {
+        showLoader(false);
+        Swal.fire('Error API', 'Gagal memvalidasi QR: ' + err.message, 'error');
+    });
+}
+
+function handleCloseValidation() {
+    Swal.fire({
+        title: 'Tutup Halaman?',
+        text: "Anda akan keluar dari halaman validasi ini.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#4f46e5',
+        cancelButtonColor: '#ef4444',
+        confirmButtonText: 'Ya, Tutup',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.close();
+            setTimeout(function() {
+                var homeUrl = window.location.origin + window.location.pathname;
+                window.location.href = homeUrl;
+            }, 300);
+        }
+    });
+}
+
+function generatePublicKTA() {
+    var d = window.tempPublicMember;
+    if (!d) return Swal.fire('Error', 'Data anggota tidak tersedia', 'error');
+    
+    showLoader(true, 'MEMBUAT KTA DIGITAL...');
+
+    const loadImage = (src) => {
+        return new Promise((resolve) => {
+            if (!src) return resolve(null); const img = new Image(); img.crossOrigin = "Anonymous"; img.onload = () => resolve(img); img.onerror = () => resolve(null); img.src = src;
+        });
+    };
+
+    apiCall('getKtaResources', {photoUrl: d.foto, logoUrl: window.tempPublicLogo}).then(async function(assets) {
+        try { await document.fonts.load("bold 21px Oswald"); } catch(e) { console.log(e); }
+        const [bgImg, logoImg, photoImg] = await Promise.all([ loadImage(assets.bg), loadImage(assets.logo), loadImage(assets.photo) ]);
+        
+        var canvas = document.getElementById('ktaCanvas'); 
+        var ctx = canvas.getContext('2d');
+        
+        if (bgImg) { 
+            ctx.drawImage(bgImg, 0, 0, 600, 380); 
+        } else { 
+            var grd = ctx.createLinearGradient(0, 0, 600, 0); grd.addColorStop(0, "#4f46e5"); grd.addColorStop(1, "#7c3aed"); ctx.fillStyle = grd; ctx.fillRect(0, 0, 600, 380); 
+        }
+
+        var nama = d.nama.length > 30 ? d.nama.substring(0, 30) + "..." : d.nama; 
+        ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 0; ctx.fillStyle = "black"; ctx.font = "bold 21px Oswald"; 
+        var leftX = 160; var topY = 160; 
+        ctx.fillText("N I A      : " + (d.nia || "-"), leftX, topY); 
+        ctx.fillText("Nama     : " + nama, leftX, topY + 28); 
+        ctx.fillText("Instansi : " + (d.unit || "-"), leftX, topY + 56); 
+        ctx.fillText("Provinsi : " + (d.provinsi || "-"), leftX, topY + 84);
+
+        var baseUrl = window.location.origin + window.location.pathname;
+        var verifyUrl = baseUrl + "?verify=" + encodeURIComponent(d.nia);
+        var qr = new QRious({ value: verifyUrl, size: 250, level: 'H' }); 
+        const qrImg = await loadImage(qr.toDataURL());
+
+        if (qrImg) { 
+            ctx.fillStyle = "white"; 
+            ctx.fillRect(9, 277, 96, 96); 
+            ctx.drawImage(qrImg, 9, 277, 96, 96); 
+
+            if (logoImg) {
+                var qrCenterX = 9 + (96 / 2);
+                var qrCenterY = 277 + (96 / 2);
+                var logoSize = 22; 
+                var bgSize = 23;   
+                ctx.fillStyle = "white";
+                ctx.fillRect(qrCenterX - (bgSize/2), qrCenterY - (bgSize/2), bgSize, bgSize);
+                ctx.drawImage(logoImg, qrCenterX - (logoSize/2), qrCenterY - (logoSize/2), logoSize, logoSize);
+            }
+        }
+
+        var photoX = 25; var photoY = 120; var fixedHeight = 132; var fixedWidth = 99; 
+        if (photoImg) { 
+            var ratio = photoImg.width / photoImg.height; var newWidth = fixedHeight * ratio; 
+            ctx.lineWidth = 5; ctx.strokeStyle = "white"; ctx.strokeRect(photoX, photoY, newWidth, fixedHeight); ctx.drawImage(photoImg, photoX, photoY, newWidth, fixedHeight); 
+        } else { 
+            ctx.fillStyle = "#cbd5e1"; ctx.fillRect(photoX, photoY, fixedWidth, fixedHeight); ctx.fillStyle = "#64748b"; ctx.font = "12px Arial"; ctx.fillText("No Foto", photoX + 25, photoY + 70); 
+        }
+
+        showLoader(false); 
+        openModal('ktaGenModal');
+        
+        var btnDownload = document.getElementById('downloadKtaBtn'); 
+        btnDownload.href = canvas.toDataURL("image/png");
+        var namaAman = (d.nama || "Anggota").replace(/[^a-zA-Z0-9]/g, "_"); btnDownload.download = "KTA_Digital_" + namaAman + ".png";
+        
+    }).catch(function(err) { 
+        showLoader(false); 
+        Swal.fire("Gagal", "Koneksi lambat/Error Server: " + err.message, "error"); 
+    });
+}
+
+function showForgotInfo() { 
+    Swal.fire({ 
+        title: 'Lupa Password?', 
+        text: "Masukkan alamat email yang terdaftar pada akun Anda. Sistem akan mengirimkan password baru ke email tersebut.", 
+        input: 'email', 
+        inputPlaceholder: 'email_anda@gmail.com', 
+        showCancelButton: true, 
+        confirmButtonText: '<i class="fa fa-paper-plane"></i> Kirim Password', 
+        cancelButtonText: 'Batal', 
+        confirmButtonColor: '#4f46e5', 
+        showLoaderOnConfirm: true, 
+        preConfirm: (email) => { 
+            return apiCall('forgotPassword', { email: email })
+                .then(response => { 
+                    if (response.status !== 'success') { 
+                        throw new Error(response.message); 
+                    } 
+                    return response; 
+                })
+                .catch(error => { 
+                    Swal.showValidationMessage(`${error.message}`); 
+                }); 
+        }, 
+        allowOutsideClick: () => !Swal.isLoading() 
+    }).then((result) => { 
+        if (result.isConfirmed) { 
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'Terkirim!', 
+                text: result.value.message,
+                confirmButtonColor: '#10b981'
+            }); 
+        } 
+    }); 
+}
