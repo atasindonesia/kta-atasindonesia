@@ -33,9 +33,23 @@ async function apiCall(actionName, dataObj = {}) {
 
 // 3. FUNGSI PINTU MASUK (Dari Portal -> Buka KTA)
 function bukaAplikasiKTA(kodeProvinsi) {
+    if(!kodeProvinsi) {
+        Swal.fire('Error', 'Kode Provinsi tidak ditemukan!', 'error');
+        return;
+    }
+
     KODE_SHARD_AKTIF = kodeProvinsi;
+    
+    // --- BAGIAN UNTUK MENGUBAH URL MENJADI ?id=namaprovinsi ---
+    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + kodeProvinsi;
+    window.history.pushState({path:newUrl}, '', newUrl);
+    // -------------------------------------------------------
+
+    // Transisi UI
     document.getElementById('wrapper-portal').style.display = 'none';
     document.getElementById('wrapper-kta').style.display = 'block';
+    
+    // Jalankan aplikasi KTA
     jalankanAplikasiKTA();
 }
 
@@ -223,13 +237,45 @@ function initPublicView() {
 
         const provContainer = document.getElementById('provinsi-container'); if (provContainer) provContainer.innerHTML = ''; let tDaftar = 0, tKTA = 0, tAktif = 0, tTidakAktif = 0;
         if(appDataCache.provinsi) { 
-            appDataCache.provinsi.forEach(prov => { 
-                tDaftar += parseInt(prov.jumlah_daftar) || 0; tKTA += parseInt(prov.jumlah_kta) || 0; tAktif += parseInt(prov.jumlah_aktif) || 0; tTidakAktif += parseInt(prov.jumlah_tidak_aktif) || 0; 
-                let cleanWa = String(prov.hp_admin || '').replace(/[^0-9]/g, ''); if(cleanWa.startsWith('0')) cleanWa = '62' + cleanWa.substring(1); let waUrl = cleanWa ? 'https://wa.me/' + cleanWa : '#'; let safeNamaProvinsi = String(prov.nama_provinsi || ''); 
-                
-                // === TOMBOL PINTU MASUK KTA ADA DI SINI ===
-                provContainer.innerHTML += '<div class="prov-card bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden card-hover flex flex-col snap-center shrink-0 w-full min-w-full md:w-[calc(33.333%-1rem)] md:min-w-[calc(33.333%-1rem)] min-h-[250px] box-border" data-nama="'+safeNamaProvinsi.toLowerCase()+'" style="display: flex !important;"><div class="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-3"><h3 class="font-bold text-white text-center truncate">'+safeNamaProvinsi+'</h3></div><div class="p-5 flex-grow flex flex-col justify-between space-y-4"><div class="text-sm space-y-3"><div><p class="text-xs text-gray-500 font-bold mb-1">Helpdesk Admin Prov. :</p><p class="font-semibold text-gray-800 flex items-center">👤 '+(prov.nama_admin || '-')+'</p></div><div><p class="text-xs text-gray-500 font-bold mb-1">Kontak (HP/WA) :</p><a href="'+waUrl+'" target="_blank" rel="noopener noreferrer" class="font-semibold text-green-600 flex items-center hover:text-green-700"><i class="fa-brands fa-whatsapp text-green-500 text-xl mr-2"></i> '+(prov.hp_admin || '-')+'</a></div></div><button onclick="bukaAplikasiKTA(\'' + (prov.kode_shard || '13jawabarat') + '\')" class="block w-full text-center bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-white font-bold py-2 rounded shadow-md hover:opacity-90 transition text-sm">Daftar & Login Anggota</button></div></div>';
-            }); 
+
+appDataCache.provinsi.forEach(prov => { 
+    tDaftar += parseInt(prov.jumlah_daftar) || 0; 
+    tKTA += parseInt(prov.jumlah_kta) || 0; 
+    tAktif += parseInt(prov.jumlah_aktif) || 0; 
+    tTidakAktif += parseInt(prov.jumlah_tidak_aktif) || 0; 
+    
+    let cleanWa = String(prov.hp_admin || '').replace(/[^0-9]/g, ''); 
+    if(cleanWa.startsWith('0')) cleanWa = '62' + cleanWa.substring(1); 
+    let waUrl = cleanWa ? 'https://wa.me/' + cleanWa : '#'; 
+    let safeNamaProvinsi = String(prov.nama_provinsi || ''); 
+    
+    // AMBIL KODE SHARD DARI DATABASE (Misal: 13jawabarat)
+    let kShard = prov.kode_shard || ''; 
+
+    provContainer.innerHTML += `
+        <div class="prov-card bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden card-hover flex flex-col snap-center shrink-0 w-full min-w-full md:w-[calc(33.333%-1rem)] md:min-w-[calc(33.333%-1rem)] min-h-[250px] box-border" data-nama="${safeNamaProvinsi.toLowerCase()}">
+            <div class="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 p-3">
+                <h3 class="font-bold text-white text-center truncate">${safeNamaProvinsi}</h3>
+            </div>
+            <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
+                <div class="text-sm space-y-3">
+                    <div>
+                        <p class="text-xs text-gray-500 font-bold mb-1">Helpdesk Admin Prov. :</p>
+                        <p class="font-semibold text-gray-800 flex items-center">👤 ${prov.nama_admin || '-'}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 font-bold mb-1">Kontak (HP/WA) :</p>
+                        <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="font-semibold text-green-600 flex items-center hover:text-green-700">
+                            <i class="fa-brands fa-whatsapp text-green-500 text-xl mr-2"></i> ${prov.hp_admin || '-'}
+                        </a>
+                    </div>
+                </div>
+                <button onclick="bukaAplikasiKTA('${kShard}')" class="block w-full text-center bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-white font-bold py-2 rounded shadow-md hover:opacity-90 transition text-sm">
+                    Daftar & Login Anggota
+                </button>
+            </div>
+        </div>`;
+});
         }
 
         document.getElementById('stat-daftar').innerText = tDaftar.toLocaleString('id-ID'); document.getElementById('stat-kta').innerText = tKTA.toLocaleString('id-ID'); document.getElementById('stat-aktif').innerText = tAktif.toLocaleString('id-ID'); document.getElementById('stat-tidak-aktif').innerText = tTidakAktif.toLocaleString('id-ID');
@@ -1620,3 +1666,20 @@ function showForgotInfo() {
         } 
     }); 
 }
+
+// Fungsi untuk mengecek apakah ada parameter ?id= di URL saat web pertama kali dibuka
+function cekParameterUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const idProv = params.get('id');
+    if (idProv) {
+        // Jika ada ID di URL, otomatis buka aplikasi KTA provinsi tersebut
+        bukaAplikasiKTA(idProv);
+    }
+}
+
+// Jalankan pengecekan setelah Portal selesai dimuat
+document.addEventListener('DOMContentLoaded', () => {
+    // Kode inisialisasi portal Anda yang sudah ada...
+    // Tambahkan pemanggilan fungsi cek di akhir:
+    setTimeout(cekParameterUrl, 1000); 
+});
