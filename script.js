@@ -71,15 +71,7 @@ let adminProvPage = 1; const adminProvPerPage = 10; let adminProvSearch = '';
 let adminPengurusPage = 1; const adminPengurusPerPage = 10; let adminPengurusSearch = '';
 let loadingTimerInterval;
 
-// --- Variabel Aplikasi 2 (KTA Provinsi) ---
-var appData = { settings: null, user: null, members: [] };
-var adminState = { page: 1, limit: 10, search: "", fUnit: "", fStatus: "", fKab: "", totalData: 0 };
-var croppieInstance = null;
-var activeCroppie = null; 
-var currentDetailMember = null;
-var chartInstance = null;
-var currentSearchMode = 'nik';
-var tableLoaderInterval = null;
+
 // =================================================
 
 function showLoadingAnim(text) {
