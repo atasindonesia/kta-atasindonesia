@@ -446,10 +446,20 @@ function renderTablePortal(type) {
         
         data.forEach(item => {
             let html = '';
-            if(type === 'provinsi') { html = '<tr class="border-b hover:bg-gray-50"><td class="p-4 font-bold">'+item.nama_provinsi+'<br><span class="text-xs font-normal text-gray-500">Admin: '+item.nama_admin+'</span></td><td class="p-4 text-xs">Daftar: '+(item.jumlah_daftar||0)+' | Aktif: '+(item.jumlah_aktif||0)+'</td><td class="p-4 text-right whitespace-nowrap"><button onclick="openFormPortal(\'provinsi\', '+item.id+')" class="text-blue-600 mr-2 font-bold">Edit</button><button onclick="delData(\'Provinsi\', '+item.id+')" class="text-red-600 font-bold">Hapus</button></td></tr>'; } 
-            else if(type === 'slide') { html = '<tr class="border-b hover:bg-gray-50"><td class="p-4 font-bold">'+item.nama_gambar+'</td><td class="p-4"><img src="'+item.gambar_url+'" class="h-10 rounded"></td><td class="p-4 text-right whitespace-nowrap"><button onclick="delData(\'Slide\', '+item.id+')" class="text-red-600 font-bold">Hapus</button></td></tr>'; } 
-            else if(type === 'hukum') { let viewBtn = item.file_url ? '<a href="'+item.file_url+'" target="_blank" class="text-green-600 mr-4 font-bold hover:text-green-800"><i class="fa-solid fa-eye"></i> Lihat</a>' : ''; html = '<tr class="border-b hover:bg-gray-50"><td class="p-4 font-bold">'+item.nomor+'</td><td class="p-4 text-sm">'+item.tentang+'</td><td class="p-4 text-right whitespace-nowrap">'+viewBtn+'<button onclick="openFormPortal(\'hukum\', '+item.id+')" class="text-blue-600 mr-2 font-bold">Edit</button><button onclick="delData(\'DasarHukum\', '+item.id+')" class="text-red-600 font-bold">Hapus</button></td></tr>'; }
-            else if(type === 'pengurus') { html = '<tr class="border-b hover:bg-gray-50"><td class="p-4"><img src="'+item.foto_url+'" class="h-12 w-9 object-cover rounded"></td><td class="p-4 font-bold">'+item.nama+'<br><span class="text-xs font-normal text-gray-500">'+item.jabatan+'</span></td><td class="p-4 text-right whitespace-nowrap"><button onclick="openFormPortal(\'pengurus\', '+item.id+')" class="text-blue-600 mr-2 font-bold">Edit</button><button onclick="delData(\'Pengurus\', '+item.id+')" class="text-red-600 font-bold">Hapus</button></td></tr>'; }
+            // PERHATIKAN: Saya sudah menambahkan tanda kutip aman (\') di sekitar item.id
+            if(type === 'provinsi') { 
+                html = '<tr class="border-b hover:bg-gray-50"><td class="p-4 font-bold">'+item.nama_provinsi+'<br><span class="text-xs font-normal text-gray-500">Admin: '+item.nama_admin+'</span></td><td class="p-4 text-xs">Daftar: '+(item.jumlah_daftar||0)+' | Aktif: '+(item.jumlah_aktif||0)+'</td><td class="p-4 text-right whitespace-nowrap"><button onclick="openFormPortal(\'provinsi\', \''+item.id+'\')" class="text-blue-600 mr-2 font-bold">Edit</button><button onclick="delData(\'Provinsi\', \''+item.id+'\')" class="text-red-600 font-bold">Hapus</button></td></tr>'; 
+            } 
+            else if(type === 'slide') { 
+                html = '<tr class="border-b hover:bg-gray-50"><td class="p-4 font-bold">'+item.nama_gambar+'</td><td class="p-4"><img src="'+item.gambar_url+'" class="h-10 rounded"></td><td class="p-4 text-right whitespace-nowrap"><button onclick="delData(\'Slide\', \''+item.id+'\')" class="text-red-600 font-bold">Hapus</button></td></tr>'; 
+            } 
+            else if(type === 'hukum') { 
+                let viewBtn = item.file_url ? '<a href="'+item.file_url+'" target="_blank" class="text-green-600 mr-4 font-bold hover:text-green-800"><i class="fa-solid fa-eye"></i> Lihat</a>' : ''; 
+                html = '<tr class="border-b hover:bg-gray-50"><td class="p-4 font-bold">'+item.nomor+'</td><td class="p-4 text-sm">'+item.tentang+'</td><td class="p-4 text-right whitespace-nowrap">'+viewBtn+'<button onclick="openFormPortal(\'hukum\', \''+item.id+'\')" class="text-blue-600 mr-2 font-bold">Edit</button><button onclick="delData(\'DasarHukum\', \''+item.id+'\')" class="text-red-600 font-bold">Hapus</button></td></tr>'; 
+            }
+            else if(type === 'pengurus') { 
+                html = '<tr class="border-b hover:bg-gray-50"><td class="p-4"><img src="'+item.foto_url+'" class="h-12 w-9 object-cover rounded"></td><td class="p-4 font-bold">'+item.nama+'<br><span class="text-xs font-normal text-gray-500">'+item.jabatan+'</span></td><td class="p-4 text-right whitespace-nowrap"><button onclick="openFormPortal(\'pengurus\', \''+item.id+'\')" class="text-blue-600 mr-2 font-bold">Edit</button><button onclick="delData(\'Pengurus\', \''+item.id+'\')" class="text-red-600 font-bold">Hapus</button></td></tr>'; 
+            }
             tbody.innerHTML += html;
         });
     } catch (err) { Swal.fire('Error', 'Error Render Table: ' + err.message, 'error'); }
