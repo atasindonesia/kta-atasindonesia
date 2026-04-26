@@ -902,11 +902,29 @@ function renderAdmin() {
    
    if(isSuper) {
        html += '<div id="viewSetting" class="hidden"><div class="card" style="max-width:1000px;margin:0 auto"><h3 style="margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #eee"><i class="fa fa-sliders-h"></i> Pengaturan Aplikasi</h3><form onsubmit="handleSaveSetting(event)">';
-       html += '<div class="form-grid"><div class="full-w"><label>Nama Organisasi</label><input type="text" id="set_nama" value="'+(s.nama||'')+'"></div><div><label>Singkatan</label><input type="text" id="set_singkatan" value="'+(s.singkatan||'')+'"></div>';
-       html += '<div class="full-w"><label>Logo Organisasi</label><div style="display:flex;gap:15px;align-items:center;background:#f9fafb;padding:10px;border:1px solid #e2e8f0;border-radius:8px"><img src="'+getImageUrl(s.logo)+'" id="preview_logo_set" style="width:50px;height:50px;object-fit:contain"><input type="file" id="file_logo" accept="image/*" onchange="previewLogoSetting(event)" style="border:none;background:transparent;"><input type="hidden" id="set_logo_url" value="'+(s.logo||'')+'"></div></div>';
-       html += '<div class="full-w"><label>Running Text</label><input type="text" id="set_running" value="'+(s.running||'')+'"></div><div><label>No HP</label><input type="text" id="set_hp" value="'+(s.hp||'')+'"></div><div><label>No WA</label><input type="text" id="set_wa" value="'+(s.wa||'')+'"></div><div><label>Email</label><input type="text" id="set_email" value="'+(s.email||'')+'"></div><div><label>Website</label><input type="text" id="set_web" value="'+(s.web||'')+'"></div></div>';
-       html += '<div><label>Provinsi Default</label><input type="text" id="set_prov" value="'+(s.provinsi_default||'')+'"></div><div><label>Nama Admin Prov</label><input type="text" id="set_nama_admin" value="'+(s.nama_admin_prov||'')+'"></div></div>';
-       html += '<button type="submit" class="btn btn-primary" style="width:100%;margin-top:20px">SIMPAN PENGATURAN</button></form></div></div>';
+       
+       html += '<div class="form-grid">';
+       // BIKIN READONLY DENGAN WARNA ABU-ABU
+       html += '<div class="full-w"><label>Nama Organisasi (Diatur Pusat)</label><input type="text" id="set_nama" value="'+(s.nama||'')+'" readonly style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;"></div>';
+       html += '<div><label>Singkatan (Diatur Pusat)</label><input type="text" id="set_singkatan" value="'+(s.singkatan||'')+'" readonly style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;"></div>';
+       
+       // LOGO READONLY
+       html += '<div class="full-w"><label>Logo Organisasi (Diatur Pusat)</label><div style="display:flex;gap:15px;align-items:center;background:#f1f5f9;padding:10px;border:1px solid #e2e8f0;border-radius:8px"><img src="'+getImageUrl(s.logo)+'" id="preview_logo_set" style="width:50px;height:50px;object-fit:contain"><span style="color:#64748b; font-weight:600; font-size:12px;">Logo terhubung dengan Admin Pusat</span><input type="hidden" id="set_logo_url" value="'+(s.logo||'')+'"></div></div>';
+       
+       // LOKAL BISA DIEDIT
+       html += '<div class="full-w"><label>Running Text Lokal</label><input type="text" id="set_running" value="'+(s.running||'')+'" placeholder="Ketik pengumuman lokal provinsi..."></div>';
+       html += '<div><label>No HP Admin Prov</label><input type="text" id="set_hp" value="'+(s.hp||'')+'"></div>';
+       html += '<div><label>No WA Admin Prov</label><input type="text" id="set_wa" value="'+(s.wa||'')+'"></div>';
+       
+       // EMAIL & WEB READONLY
+       html += '<div><label>Email (Diatur Pusat)</label><input type="text" id="set_email" value="'+(s.email||'')+'" readonly style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;"></div>';
+       html += '<div><label>Website (Diatur Pusat)</label><input type="text" id="set_web" value="'+(s.web||'')+'" readonly style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;"></div>';
+       
+       html += '</div>'; // Tutup form-grid
+       
+       html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:20px;"><div><label>Provinsi Default</label><input type="text" id="set_prov" value="'+(s.provinsi_default||'')+'" readonly style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;"></div><div><label>Nama Admin Prov</label><input type="text" id="set_nama_admin" value="'+(s.nama_admin_prov||'')+'"></div></div>';
+       
+       html += '<button type="submit" class="btn btn-primary" style="width:100%;margin-top:20px">SIMPAN PENGATURAN LOKAL</button></form></div></div>';
    }
 
    html += '<div style="color:#64748b;opacity:0.9;margin-top:auto;padding:20px;text-align:center;font-size:12px;line-height:1.6; border-top:1px solid #e2e8f0;">';
@@ -1152,25 +1170,36 @@ function renderPaginationInfo(res) { var start = (res.currentPage - 1) * 10 + 1;
 function loadDashboardStats() { apiCall('getDashboardStats').then(function(stats){ document.getElementById('stTot').innerText = stats.total; document.getElementById('stAct').innerText = stats.aktif; document.getElementById('stBelum').innerText = stats.belum; if(chartInstance) chartInstance.destroy(); var ctx = document.getElementById('cityChart'); if(ctx) { chartInstance=new Chart(ctx, { type:'bar', data:{ labels: Object.keys(stats.sebaran), datasets:[{ label:'Jumlah Anggota', data: Object.values(stats.sebaran), backgroundColor:'#4f46e5', borderRadius:5 }] }, options: { responsive: true, maintainAspectRatio: false, plugins:{ legend:{display:false} } } }); } }).catch(e=>console.log(e)); }
 function populateFilters() { apiCall('getFilterOptions').then(function(res){ var uHTML = '<option value="">Semua Unit</option>'; res.units.forEach(u => { uHTML += '<option value="'+u+'">'+u+'</option>'; }); document.getElementById('fUnit').innerHTML = uHTML; var kHTML = '<option value="">Semua Wilayah</option>'; res.kabs.forEach(k => { kHTML += '<option value="'+k+'">'+k+'</option>'; }); document.getElementById('fKab').innerHTML = kHTML; }).catch(e=>console.log(e)); }
 
-function previewLogoSetting(e) { var file = e.target.files[0]; if(file) { var reader = new FileReader(); reader.onload = function(e) { document.getElementById('preview_logo_set').src = e.target.result; }; reader.readAsDataURL(file); } }
 
 function handleSaveSetting(e) { 
-    e.preventDefault(); Swal.fire({ title: 'Menyimpan...', text: 'Mohon tunggu', allowOutsideClick: false, didOpen:()=>{Swal.showLoading()} }); 
-    var fileInput = document.getElementById('file_logo'); 
+    e.preventDefault(); 
+    Swal.fire({ title: 'Menyimpan...', text: 'Mohon tunggu', allowOutsideClick: false, didOpen:()=>{Swal.showLoading()} }); 
     
-    var saveFinalData = function(finalLogoUrl) { 
-        var d = { nama: document.getElementById('set_nama').value, singkatan: document.getElementById('set_singkatan').value, theme: '#4f46e5', logo: finalLogoUrl, running: document.getElementById('set_running').value, hp: document.getElementById('set_hp').value, wa: document.getElementById('set_wa').value, email: document.getElementById('set_email').value, web: document.getElementById('set_web').value, provinsi: document.getElementById('set_prov').value, nama_admin_prov: document.getElementById('set_nama_admin').value };
-        apiCall('saveAppSettings', d).then(function(res){ 
-            Swal.close(); if(res.status === 'success') { appData.settings = d; appData.settings.provinsi_default = d.provinsi; appData.settings.nama_admin_prov = d.nama_admin_prov; Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Pengaturan disimpan!', timer: 1500, showConfirmButton: false }).then(() => { renderAdmin(); switchTab('dash'); }); } else { Swal.fire('Gagal', res.message, 'error'); } 
-        }).catch(err => Swal.fire('Error', err.message, 'error')); 
-    }; 
-    
-    if(fileInput.files.length > 0) { 
-        var file = fileInput.files[0]; if(file.size > 2097152) { Swal.fire('Error', 'Max 2MB', 'warning'); return; } 
-        var reader = new FileReader(); reader.onload = function(ev) { 
-            apiCall('uploadToDrive', {base64Data: ev.target.result, filename: "LOGO_ORG_" + new Date().getTime()}).then(function(newUrl){ if(newUrl) saveFinalData(newUrl); else Swal.fire('Error', 'Gagal upload logo', 'error'); }).catch(e => Swal.fire('Error', e.message, 'error')); 
-        }; reader.readAsDataURL(file); 
-    } else { saveFinalData(document.getElementById('set_logo_url').value); } 
+    var d = { 
+        running: document.getElementById('set_running').value, 
+        hp: document.getElementById('set_hp').value, 
+        wa: document.getElementById('set_wa').value, 
+        provinsi: document.getElementById('set_prov').value, 
+        nama_admin_prov: document.getElementById('set_nama_admin').value 
+    };
+
+    apiCall('saveAppSettings', d).then(function(res){ 
+        Swal.close(); 
+        if(res.status === 'success') { 
+            // Update cache lokal browser agar tidak perlu refresh penuh
+            appData.settings.running = d.running; 
+            appData.settings.hp = d.hp; 
+            appData.settings.wa = d.wa; 
+            appData.settings.provinsi_default = d.provinsi; 
+            appData.settings.nama_admin_prov = d.nama_admin_prov; 
+            
+            Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Pengaturan Lokal disimpan!', timer: 1500, showConfirmButton: false }).then(() => { 
+                renderAdmin(); switchTab('dash'); 
+            }); 
+        } else { 
+            Swal.fire('Gagal', res.message, 'error'); 
+        } 
+    }).catch(err => Swal.fire('Error', err.message, 'error')); 
 }
 
 function exportExcel() { 
