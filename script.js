@@ -470,7 +470,24 @@ function openFormPortal(type, id = null) {
     const title = document.getElementById('modal-title-portal'); const body = document.getElementById('modal-body-portal');
     const headerActions = document.getElementById('modal-header-actions-portal'); headerActions.innerHTML = '<button onclick="closeModalPortal()" class="text-red-500 font-bold text-2xl cursor-pointer">X</button>';
     let item = id ? (type === 'hukum' ? appDataCache.dasarHukum.find(x => x.id == id) : appDataCache[type].find(x => x.id == id)) : {};
-    if(type === 'provinsi') { title.innerText = id?"Edit Anggota Provinsi":"Tambah Anggota Provinsi"; body.innerHTML = '<form onsubmit="saveProvinsi(event)"><input type="hidden" id="p-id" value="'+(item.id||'')+'"><div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4"><div><label class="text-xs font-bold">Nama Provinsi</label><input type="text" id="p-nama" value="'+(item.nama_provinsi||'')+'" class="w-full border p-2 rounded" required></div><div><label class="text-xs font-bold">Link Pendaftaran</label><input type="url" id="p-link" value="'+(item.link_pendaftaran||'')+'" class="w-full border p-2 rounded" required></div><div><label class="text-xs font-bold">Nama Admin</label><input type="text" id="p-admin" value="'+(item.nama_admin||'')+'" class="w-full border p-2 rounded" required></div><div><label class="text-xs font-bold">HP Admin</label><input type="text" id="p-hp" value="'+(item.hp_admin||'')+'" class="w-full border p-2 rounded" required></div><div><label class="text-xs font-bold">Daftar</label><input type="number" id="p-df" value="'+(item.jumlah_daftar||0)+'" class="w-full border p-2 rounded"></div><div><label class="text-xs font-bold">Aktif</label><input type="number" id="p-ak" value="'+(item.jumlah_aktif||0)+'" class="w-full border p-2 rounded"></div></div><button class="w-full sm:w-auto bg-navy text-white px-4 py-2 rounded font-bold">Simpan Provinsi</button></form>'; } 
+    
+    if(type === 'provinsi') { 
+        title.innerText = id ? "Edit Anggota Provinsi" : "Tambah Anggota Provinsi"; 
+        body.innerHTML = `
+        <form onsubmit="saveProvinsi(event)">
+            <input type="hidden" id="p-id" value="${item.id||''}">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <div><label class="text-xs font-bold">Nama Provinsi</label><input type="text" id="p-nama" value="${item.nama_provinsi||''}" class="w-full border p-2 rounded" required></div>
+                <div><label class="text-xs font-bold">Kode Shard (App 2)</label><input type="text" id="p-link" value="${item.link_pendaftaran||''}" class="w-full border p-2 rounded" placeholder="misal: 13jawabarat" required></div>
+                <div><label class="text-xs font-bold">Nama Admin Prov</label><input type="text" id="p-admin" value="${item.nama_admin||''}" class="w-full border p-2 rounded" required></div>
+                <div><label class="text-xs font-bold">Telepon Admin Prov</label><input type="text" id="p-hp" value="${item.hp_admin||''}" class="w-full border p-2 rounded" required></div>
+                <div class="sm:col-span-2"><label class="text-xs font-bold">WA Admin Prov (Awali dengan 62)</label><input type="text" id="p-wa" value="${item.wa_admin || item.hp_admin || ''}" class="w-full border p-2 rounded" required></div>
+                <div><label class="text-xs font-bold">Daftar</label><input type="number" id="p-df" value="${item.jumlah_daftar||0}" class="w-full border p-2 rounded"></div>
+                <div><label class="text-xs font-bold">Aktif</label><input type="number" id="p-ak" value="${item.jumlah_aktif||0}" class="w-full border p-2 rounded"></div>
+            </div>
+            <button class="w-full sm:w-auto bg-navy text-white px-4 py-2 rounded font-bold">Simpan Provinsi</button>
+        </form>`; 
+    } 
     else if (type === 'slide') { title.innerText = "Tambah Slide (Crop 7:4)"; body.innerHTML = '<form onsubmit="execSaveSlide(event)"><label class="text-sm font-bold">Nama Gambar</label><input type="text" id="s-nama" class="w-full border p-2 mb-2 rounded" required><label class="text-sm font-bold">Pilih File</label><input type="file" id="s-file" accept="image/*" class="w-full border p-2 mb-2 rounded" onchange="initCropper(event, 7/4)" required><div class="w-full max-h-64 overflow-hidden bg-gray-200 mb-2 rounded"><img id="cropper-img" class="max-w-full hidden"></div><button type="submit" id="btn-s-save" class="w-full sm:w-auto bg-navy text-white px-4 py-2 rounded font-bold">Crop & Upload</button></form>'; }
     else if (type === 'pengurus') { title.innerText = id ? "Edit Pengurus (Crop 3:4)" : "Tambah Pengurus (Crop 3:4)"; body.innerHTML = '<form onsubmit="execSavePengurus(event)"><input type="hidden" id="pe-id" value="'+(item.id||'')+'"><input type="hidden" id="pe-url-lama" value="'+(item.foto_url||'')+'"><label class="text-sm font-bold">Nama</label><input type="text" id="pe-nama" value="'+(item.nama||'')+'" class="w-full border p-2 mb-2 rounded" required><label class="text-sm font-bold">Jabatan</label><input type="text" id="pe-jabatan" value="'+(item.jabatan||'')+'" class="w-full border p-2 mb-2 rounded" required><label class="text-sm font-bold">Upload Foto Baru (Opsional)</label><input type="file" accept="image/*" class="w-full border p-2 mb-2 rounded" onchange="initCropper(event, 3/4)"><div class="w-full max-h-64 overflow-hidden bg-gray-200 mb-2 rounded"><img id="cropper-img" class="max-w-full hidden"></div><button type="submit" id="btn-pe-save" class="w-full sm:w-auto bg-navy text-white px-4 py-2 rounded font-bold">Simpan Data</button></form>'; }
     else if (type === 'hukum') { title.innerText = id ? "Edit Dasar Hukum" : "Tambah Dasar Hukum"; body.innerHTML = '<form onsubmit="execSaveHukum(event)"><input type="hidden" id="h-id" value="'+(item.id||'')+'"><input type="hidden" id="h-url-lama" value="'+(item.file_url||'')+'"><label class="text-sm font-bold">Nomor Hukum</label><input type="text" id="h-nomor" value="'+(item.nomor||'')+'" class="w-full border p-2 mb-2 rounded" required><label class="text-sm font-bold">Tentang</label><input type="text" id="h-tentang" value="'+(item.tentang||'')+'" class="w-full border p-2 mb-2 rounded" required><label class="text-sm font-bold">Upload PDF (Opsional)</label><input type="file" id="h-file" accept=".pdf" class="w-full border p-2 mb-2 rounded"><button type="submit" id="btn-h-save" class="w-full sm:w-auto bg-navy text-white px-4 py-2 rounded font-bold">Simpan</button></form>'; }
@@ -482,7 +499,16 @@ function initCropperAdm(e, rasio) { const file = e.target.files[0]; if(!file) re
 
 async function saveProvinsi(e) { 
     e.preventDefault(); 
-    const data = { id: document.getElementById('p-id').value, nama_provinsi: document.getElementById('p-nama').value, link_pendaftaran: document.getElementById('p-link').value, nama_admin: document.getElementById('p-admin').value, hp_admin: document.getElementById('p-hp').value, jumlah_daftar: document.getElementById('p-df').value, jumlah_aktif: document.getElementById('p-ak').value }; 
+    const data = { 
+        id: document.getElementById('p-id').value, 
+        nama_provinsi: document.getElementById('p-nama').value, 
+        link_pendaftaran: document.getElementById('p-link').value, 
+        nama_admin: document.getElementById('p-admin').value, 
+        hp_admin: document.getElementById('p-hp').value, 
+        wa_admin: document.getElementById('p-wa').value, // Menangkap WA
+        jumlah_daftar: document.getElementById('p-df').value, 
+        jumlah_aktif: document.getElementById('p-ak').value 
+    }; 
     try {
         showLoadingAnim('Menyimpan Data Provinsi');
         await callGAS('saveProvinsi', data);
@@ -911,30 +937,21 @@ function renderAdmin() {
    html += '<div class="table-box"><table><thead><tr><th>ID/NIA</th><th>Nama</th><th>Kab/Kota</th><th>Unit</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tableBody"></tbody></table></div><div style="margin-top:15px;display:flex;justify-content:space-between;align-items:center"><div id="pageInfo" style="font-size:13px;color:#666"></div><div><button class="btn btn-sm btn-outline" onclick="changePage(-1)">< Prev</button> <button class="btn btn-sm btn-outline" onclick="changePage(1)">Next ></button></div></div></div>';
    
    if(isSuper) {
-       html += '<div id="viewSetting" class="hidden"><div class="card" style="max-width:1000px;margin:0 auto"><h3 style="margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #eee"><i class="fa fa-sliders-h"></i> Pengaturan Aplikasi</h3><form onsubmit="handleSaveSetting(event)">';
+       html += '<div id="viewSetting" class="hidden"><div class="card" style="max-width:1000px;margin:0 auto"><h3 style="margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #eee"><i class="fa fa-lock"></i> Pengaturan Aplikasi (Terkunci)</h3>';
+       html += '<div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:12px; padding:25px; text-align:center;">';
+       html += '<i class="fa fa-shield-alt" style="font-size:40px; color:#4f46e5; margin-bottom:15px;"></i>';
+       html += '<h4 style="color:#1e293b; font-size:18px; margin-bottom:10px;">Sistem Terpusat Aktif</h4>';
+       html += '<p style="color:#64748b; font-size:14px; margin-bottom:25px;">Seluruh identitas organisasi, logo, running text, serta nama dan kontak Admin Provinsi <b>sepenuhnya dikendalikan oleh Admin Pusat</b> melalui Portal Utama.</p>';
        
-       html += '<div class="form-grid">';
-       // BIKIN READONLY DENGAN WARNA ABU-ABU
-       html += '<div class="full-w"><label>Nama Organisasi (Diatur Pusat)</label><input type="text" id="set_nama" value="'+(s.nama||'')+'" readonly style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;"></div>';
-       html += '<div><label>Singkatan (Diatur Pusat)</label><input type="text" id="set_singkatan" value="'+(s.singkatan||'')+'" readonly style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;"></div>';
+       html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; text-align:left;">';
+       html += '<div><label style="font-size:11px; color:#94a3b8;">Organisasi</label><input type="text" value="'+(s.nama||'')+'" readonly style="background:#e2e8f0; color:#64748b; border:none; cursor:not-allowed;"></div>';
+       html += '<div><label style="font-size:11px; color:#94a3b8;">Running Text</label><input type="text" value="'+(s.running||'')+'" readonly style="background:#e2e8f0; color:#64748b; border:none; cursor:not-allowed;"></div>';
+       html += '<div><label style="font-size:11px; color:#94a3b8;">Provinsi Default</label><input type="text" value="'+(s.provinsi_default||'')+'" readonly style="background:#e2e8f0; color:#64748b; border:none; cursor:not-allowed;"></div>';
+       html += '<div><label style="font-size:11px; color:#94a3b8;">Admin Prov & WA</label><input type="text" value="'+(s.nama_admin_prov||'')+' ('+(s.wa||s.hp||'')+')" readonly style="background:#e2e8f0; color:#64748b; border:none; cursor:not-allowed;"></div>';
+       html += '</div>'; // End Grid
        
-       // LOGO READONLY
-       html += '<div class="full-w"><label>Logo Organisasi (Diatur Pusat)</label><div style="display:flex;gap:15px;align-items:center;background:#f1f5f9;padding:10px;border:1px solid #e2e8f0;border-radius:8px"><img src="'+getImageUrl(s.logo)+'" id="preview_logo_set" style="width:50px;height:50px;object-fit:contain"><span style="color:#64748b; font-weight:600; font-size:12px;">Logo terhubung dengan Admin Pusat</span><input type="hidden" id="set_logo_url" value="'+(s.logo||'')+'"></div></div>';
-       
-       // LOKAL BISA DIEDIT
-       html += '<div class="full-w"><label>Running Text Lokal</label><input type="text" id="set_running" value="'+(s.running||'')+'" placeholder="Ketik pengumuman lokal provinsi..."></div>';
-       html += '<div><label>No HP Admin Prov</label><input type="text" id="set_hp" value="'+(s.hp||'')+'"></div>';
-       html += '<div><label>No WA Admin Prov</label><input type="text" id="set_wa" value="'+(s.wa||'')+'"></div>';
-       
-       // EMAIL & WEB READONLY
-       html += '<div><label>Email (Diatur Pusat)</label><input type="text" id="set_email" value="'+(s.email||'')+'" readonly style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;"></div>';
-       html += '<div><label>Website (Diatur Pusat)</label><input type="text" id="set_web" value="'+(s.web||'')+'" readonly style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;"></div>';
-       
-       html += '</div>'; // Tutup form-grid
-       
-       html += '<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:20px;"><div><label>Provinsi Default</label><input type="text" id="set_prov" value="'+(s.provinsi_default||'')+'" readonly style="background:#f1f5f9; color:#94a3b8; cursor:not-allowed;"></div><div><label>Nama Admin Prov</label><input type="text" id="set_nama_admin" value="'+(s.nama_admin_prov||'')+'"></div></div>';
-       
-       html += '<button type="submit" class="btn btn-primary" style="width:100%;margin-top:20px">SIMPAN PENGATURAN LOKAL</button></form></div></div>';
+       html += '<button type="button" onclick="switchTab(\'data\')" class="btn btn-primary" style="margin-top:25px; width:100%;">KEMBALI KE DATA ANGGOTA</button>';
+       html += '</div></div></div>';
    }
 
    html += '<div style="color:#64748b;opacity:0.9;margin-top:auto;padding:20px;text-align:center;font-size:12px;line-height:1.6; border-top:1px solid #e2e8f0;">';
