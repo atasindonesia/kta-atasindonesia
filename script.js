@@ -1,7 +1,7 @@
 // ====================================================================
 // 1. PENGATURAN MESIN API MASTER
 // ====================================================================
-const MASTER_API_URL = "https://script.google.com/macros/s/AKfycbzlTycHaa-nE2U2nuAYqV5rXLUJZf3fa5ZTPamTw8GCCSEOZIqDhsPraKNKMyQfv9J_jw/exec";
+const MASTER_API_URL = "https://script.google.com/macros/s/AKfycbzlTycHaa-nE2U2nuAYqV5rXLUJZf3fa5ZTPamTw8GCCSEOZIqDhsPraKNKMyQfv9J_jw/exec"; 
 
 // Variabel untuk mengingat user sedang buka provinsi apa
 let KODE_SHARD_AKTIF = ""; 
@@ -712,7 +712,8 @@ function jalankanAplikasiKTA() {
             renderLogin(); 
         } 
     }).catch(function(err){ 
-        clearTimeout(safetyTimer); showLoader(false); alert("Gagal koneksi API. Coba refresh."); 
+        clearTimeout(safetyTimer); showLoader(false); 
+        alert("Gagal koneksi API: " + err.message); // <--- Biar ketahuan error aslinya!
     });
 }
 
