@@ -798,6 +798,23 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+async function jalankanSyncStatistik() {
+    Swal.fire({
+        title: 'Menyinkronkan Data...',
+        text: 'Sistem sedang berkeliling ke 38 Database untuk menghitung ulang seluruh anggota. Proses ini bisa memakan waktu sekitar 1 menit.',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading() }
+    });
+    try {
+        const res = await callGAS('syncStatistik');
+        localStorage.removeItem('sapaAppDataCache'); // Hapus cache
+        refreshAdminData('provinsi'); // Render ulang tabel
+        Swal.fire('Berhasil!', 'Seluruh statistik provinsi berhasil diperbarui dari database pusat!', 'success');
+    } catch(err) {
+        Swal.fire('Terjadi Kesalahan', err.message, 'error');
+    }
+}
+
 // ====================================================================
 // FUNGSI APLIKASI 2 (KTA)
 // ====================================================================
