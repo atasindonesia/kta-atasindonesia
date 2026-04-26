@@ -476,16 +476,30 @@ function openFormPortal(type, id = null) {
         body.innerHTML = `
         <form onsubmit="saveProvinsi(event)">
             <input type="hidden" id="p-id" value="${item.id||''}">
+            
+            <h4 class="font-bold text-navy mb-2 border-b pb-1">Identitas & Routing</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                <div><label class="text-xs font-bold">Nama Provinsi</label><input type="text" id="p-nama" value="${item.nama_provinsi||''}" class="w-full border p-2 rounded" required></div>
-                <div><label class="text-xs font-bold">Kode Shard (App 2)</label><input type="text" id="p-link" value="${item.link_pendaftaran||''}" class="w-full border p-2 rounded" placeholder="misal: 13jawabarat" required></div>
-                <div><label class="text-xs font-bold">Nama Admin Prov</label><input type="text" id="p-admin" value="${item.nama_admin||''}" class="w-full border p-2 rounded" required></div>
-                <div><label class="text-xs font-bold">Telepon Admin Prov</label><input type="text" id="p-hp" value="${item.hp_admin||''}" class="w-full border p-2 rounded" required></div>
-                <div class="sm:col-span-2"><label class="text-xs font-bold">WA Admin Prov (Awali dengan 62)</label><input type="text" id="p-wa" value="${item.wa_admin || item.hp_admin || ''}" class="w-full border p-2 rounded" required></div>
-                <div><label class="text-xs font-bold">Daftar</label><input type="number" id="p-df" value="${item.jumlah_daftar||0}" class="w-full border p-2 rounded"></div>
-                <div><label class="text-xs font-bold">Aktif</label><input type="number" id="p-ak" value="${item.jumlah_aktif||0}" class="w-full border p-2 rounded"></div>
+                <div><label class="text-xs font-bold text-gray-500">Nama Provinsi</label><input type="text" id="p-nama" value="${item.nama_provinsi||''}" class="w-full border p-2 rounded" placeholder="Contoh: Jambi" required></div>
+                <div><label class="text-xs font-bold text-gray-500">Kode Shard (Wajib Sama dg Router)</label><input type="text" id="p-shard" value="${item.kode_shard||''}" class="w-full border p-2 rounded" placeholder="Contoh: 08jambi" required></div>
+                <div class="sm:col-span-2"><label class="text-xs font-bold text-gray-500">Link Pendaftaran Eksternal (Opsional)</label><input type="url" id="p-link" value="${item.link_pendaftaran||''}" class="w-full border p-2 rounded" placeholder="Kosongkan jika tidak ada"></div>
             </div>
-            <button class="w-full sm:w-auto bg-navy text-white px-4 py-2 rounded font-bold">Simpan Provinsi</button>
+
+            <h4 class="font-bold text-navy mb-2 border-b pb-1">Data Admin Lokal</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                <div><label class="text-xs font-bold text-gray-500">Nama Admin</label><input type="text" id="p-admin" value="${item.nama_admin||''}" class="w-full border p-2 rounded" required></div>
+                <div><label class="text-xs font-bold text-gray-500">HP Admin</label><input type="text" id="p-hp" value="${item.hp_admin||''}" class="w-full border p-2 rounded" required></div>
+                <div><label class="text-xs font-bold text-gray-500">WA Admin (Awali 62)</label><input type="text" id="p-wa" value="${item.wa_admin || item.hp_admin || ''}" class="w-full border p-2 rounded" required></div>
+            </div>
+
+            <h4 class="font-bold text-navy mb-2 border-b pb-1">Statistik Anggota</h4>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div><label class="text-xs font-bold text-yellow-600">Total Daftar</label><input type="number" id="p-df" value="${item.jumlah_daftar||0}" class="w-full border p-2 rounded bg-yellow-50"></div>
+                <div><label class="text-xs font-bold text-blue-600">Punya KTA</label><input type="number" id="p-kta" value="${item.jumlah_kta||0}" class="w-full border p-2 rounded bg-blue-50"></div>
+                <div><label class="text-xs font-bold text-green-600">Aktif</label><input type="number" id="p-ak" value="${item.jumlah_aktif||0}" class="w-full border p-2 rounded bg-green-50"></div>
+                <div><label class="text-xs font-bold text-red-600">Tidak Aktif</label><input type="number" id="p-tak" value="${item.jumlah_tidak_aktif||0}" class="w-full border p-2 rounded bg-red-50"></div>
+            </div>
+
+            <button class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-bold shadow transition text-lg"><i class="fa fa-save"></i> SIMPAN PROVINSI</button>
         </form>`; 
     } 
     else if (type === 'slide') { title.innerText = "Tambah Slide (Crop 7:4)"; body.innerHTML = '<form onsubmit="execSaveSlide(event)"><label class="text-sm font-bold">Nama Gambar</label><input type="text" id="s-nama" class="w-full border p-2 mb-2 rounded" required><label class="text-sm font-bold">Pilih File</label><input type="file" id="s-file" accept="image/*" class="w-full border p-2 mb-2 rounded" onchange="initCropper(event, 7/4)" required><div class="w-full max-h-64 overflow-hidden bg-gray-200 mb-2 rounded"><img id="cropper-img" class="max-w-full hidden"></div><button type="submit" id="btn-s-save" class="w-full sm:w-auto bg-navy text-white px-4 py-2 rounded font-bold">Crop & Upload</button></form>'; }
@@ -502,12 +516,15 @@ async function saveProvinsi(e) {
     const data = { 
         id: document.getElementById('p-id').value, 
         nama_provinsi: document.getElementById('p-nama').value, 
-        link_pendaftaran: document.getElementById('p-link').value, 
         nama_admin: document.getElementById('p-admin').value, 
         hp_admin: document.getElementById('p-hp').value, 
-        wa_admin: document.getElementById('p-wa').value, // Menangkap WA
+        wa_admin: document.getElementById('p-wa').value, 
+        link_pendaftaran: document.getElementById('p-link').value, 
         jumlah_daftar: document.getElementById('p-df').value, 
-        jumlah_aktif: document.getElementById('p-ak').value 
+        jumlah_kta: document.getElementById('p-kta').value, 
+        jumlah_aktif: document.getElementById('p-ak').value, 
+        jumlah_tidak_aktif: document.getElementById('p-tak').value, 
+        kode_shard: document.getElementById('p-shard').value 
     }; 
     try {
         showLoadingAnim('Menyimpan Data Provinsi');
