@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>SAPA KTA ATAS INDONESIA</title>
+    
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script> tailwind.config = { theme: { extend: { colors: { navy: '#0f172a', gold: '#eab308' } } } } </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Poppins:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans flex flex-col min-h-screen overflow-x-hidden">
+
+    <div id="wrapper-portal">
+        <div id="pwa-install-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[300] px-4 transition-opacity duration-300">
+            <div class="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm text-center transform scale-100 animate-[bgSlideUp_0.3s_ease-out]">
+                <div class="w-20 h-20 mx-auto bg-gradient-to-tr from-cyan-100 to-blue-50 rounded-2xl flex items-center justify-center mb-5 shadow-inner border border-blue-100">
+                    <img src="./logo-kta.png" alt="Logo" class="w-12 h-12 object-contain drop-shadow-md">
+                </div>
+                <h3 class="text-2xl font-extrabold text-navy mb-2">Install SAPA KTA</h3>
+                <p class="text-sm text-gray-500 mb-8 px-2 leading-relaxed">Tambahkan aplikasi ini ke layar utama HP Anda untuk akses instan, lebih cepat, dan hemat kuota!</p>
+                <div class="flex gap-3 w-full">
+                    <button id="btn-nanti-pwa" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-colors">Nanti</button>
+                    <button id="btn-install-pwa-modal" class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold py-3.5 rounded-xl shadow-[0_8px_15px_rgba(37,99,235,0.3)] hover:opacity-90 transition-opacity">Install</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-public" class="flex-grow flex flex-col pb-[60px] md:pb-0 relative w-full">
+            <nav class="bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 text-white sticky top-0 z-[70] shadow-md w-full">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-16 items-center">
+                    <div class="flex items-center space-x-3 w-full md:w-auto overflow-hidden">
+                        <img id="logo" src="" alt="Logo" class="h-10 w-10 object-contain flex-shrink-0">
+                        <span id="nav-title" class="font-bold text-lg md:text-xl text-gold truncate">Aplikasi</span>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-6">
+                        <a href="#beranda" class="hover:text-gold transition">Beranda</a>
+                        <a href="#provinsi" class="hover:text-gold transition">Daftar Anggota</a>
+                        <a href="#pengurus-section" class="hover:text-gold transition">Pengurus</a>
+                        <a href="#informasi" class="hover:text-gold transition">Informasi</a>
+                        <button onclick="showAdminPusatModal()" class="hover:text-gold transition font-bold text-cyan-200">Admin Pusat</button>
+                    </div>
+                </div>
+            </nav>
+
+            <section id="beranda" class="bg-navy text-white pt-10 pb-16 md:py-32 relative overflow-hidden bg-cover bg-center w-full aspect-[5/3] md:aspect-auto flex flex-col justify-center items-center transition-all duration-300">
+               <div class="absolute inset-0 bg-black bg-opacity-50 z-0"></div>
+                <div class="max-w-7xl mx-auto px-4 text-center relative z-10 w-full">
+                    <img id="hero-logo" src="" alt="Logo" class="h-16 sm:h-20 md:h-36 mx-auto mb-2 md:mb-6 object-contain drop-shadow-2xl hidden">
+                    <h1 id="hero-title" class="text-xl sm:text-2xl md:text-5xl font-extrabold mb-1 md:mb-4 text-gold tracking-wide drop-shadow-lg leading-snug"></h1>
+                    <p class="text-[13px] sm:text-sm md:text-2xl text-gray-200 mb-1 md:mb-8 max-w-3xl mx-auto drop-shadow-md leading-tight">Sistem Aplikasi Pendataan Anggota dan Kartu Tanda Anggota (KTA)</p>
+                    <p id="hero-subtitle" class="text-[11px] sm:text-sm md:text-xl text-blue-200 md:mb-8 max-w-3xl mx-auto drop-shadow-md leading-tight"></p>
+                </div>
+            </section>
+
+            <div class="w-full bg-navy border-y border-gold/40 relative flex items-center overflow-hidden h-12 md:h-14 shadow-md">
+                <div class="absolute left-0 z-20 flex items-center h-full bg-gradient-to-r from-navy via-navy to-transparent pr-8 pl-4 sm:pl-8">
+                    <div class="flex items-center gap-2 bg-blue-900/80 px-3 py-1 rounded-full border border-blue-400/30 backdrop-blur-sm shadow-[4px_0_10px_rgba(0,0,0,0.5)]">
+                        <i class="fa-solid fa-bullhorn text-gold animate-pulse text-sm md:text-base"></i>
+                        <span class="font-bold text-xs sm:text-sm tracking-widest text-gold uppercase">Info</span>
+                    </div>
+                </div>
+                <div class="w-full overflow-hidden flex items-center h-full">
+                    <div class="animate-marquee-scroll flex items-center h-full pl-24 sm:pl-32">
+                        <span id="teks-pengumuman" class="text-gray-200 text-sm md:text-base font-medium tracking-wide">Selamat datang di SAPA KTA. Silakan lakukan pendaftaran anggota melalui menu yang tersedia...</span>
+                    </div>
+                </div>
+                <div class="absolute right-0 z-20 h-full w-12 bg-gradient-to-l from-navy to-transparent"></div>
+            </div>
+
+            <section class="py-4 md:py-12 bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 relative z-20 w-full border-b border-purple-800 shadow-inner">
+                <div class="max-w-6xl mx-auto px-4">
+                    <div class="text-center mb-4 md:mb-12">
+                        <h2 class="text-lg md:text-3xl font-bold text-white inline-block tracking-wide">Statistik Anggota</h2>
+                        <div class="w-12 md:w-20 h-1 md:h-1.5 bg-gold mx-auto mt-1 md:mt-2 rounded-full shadow-[0_0_10px_rgba(234,179,8,0.5)]"></div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 text-center">
+                        <div class="bg-white p-2 md:p-6 rounded-xl md:rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.3)] border border-gray-100 card-hover relative overflow-hidden group flex flex-col justify-center">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-yellow-400 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                            <div class="w-8 h-8 md:w-14 md:h-14 mx-auto bg-yellow-50 rounded-full flex items-center justify-center mb-1 md:mb-3 text-yellow-500 transition-transform group-hover:scale-110"><i class="fa-solid fa-users text-xs md:text-2xl"></i></div>
+                            <p class="text-[9px] md:text-xs text-gray-500 font-bold mb-0 md:mb-1 uppercase tracking-wider leading-tight">Total Mendaftar</p>
+                            <p id="stat-daftar" class="text-base md:text-4xl font-extrabold text-navy leading-none mt-1">0</p>
+                        </div>
+                        <div class="bg-white p-2 md:p-6 rounded-xl md:rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.3)] border border-gray-100 card-hover relative overflow-hidden group flex flex-col justify-center">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-blue-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                            <div class="w-8 h-8 md:w-14 md:h-14 mx-auto bg-blue-50 rounded-full flex items-center justify-center mb-1 md:mb-3 text-blue-500 transition-transform group-hover:scale-110"><i class="fa-solid fa-id-card text-xs md:text-2xl"></i></div>
+                            <p class="text-[9px] md:text-xs text-gray-500 font-bold mb-0 md:mb-1 uppercase tracking-wider leading-tight">Punya KTA</p>
+                            <p id="stat-kta" class="text-base md:text-4xl font-extrabold text-blue-600 leading-none mt-1">0</p>
+                        </div>
+                        <div class="bg-white p-2 md:p-6 rounded-xl md:rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.3)] border border-gray-100 card-hover relative overflow-hidden group flex flex-col justify-center">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-green-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                            <div class="w-8 h-8 md:w-14 md:h-14 mx-auto bg-green-50 rounded-full flex items-center justify-center mb-1 md:mb-3 text-green-500 transition-transform group-hover:scale-110"><i class="fa-solid fa-user-check text-xs md:text-2xl"></i></div>
+                            <p class="text-[9px] md:text-xs text-gray-500 font-bold mb-0 md:mb-1 uppercase tracking-wider leading-tight">Anggota Aktif</p>
+                            <p id="stat-aktif" class="text-base md:text-4xl font-extrabold text-green-500 leading-none mt-1">0</p>
+                        </div>
+                        <div class="bg-white p-2 md:p-6 rounded-xl md:rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.3)] border border-gray-100 card-hover relative overflow-hidden group flex flex-col justify-center">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-red-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                            <div class="w-8 h-8 md:w-14 md:h-14 mx-auto bg-red-50 rounded-full flex items-center justify-center mb-1 md:mb-3 text-red-500 transition-transform group-hover:scale-110"><i class="fa-solid fa-user-xmark text-xs md:text-2xl"></i></div>
+                            <p class="text-[9px] md:text-xs text-gray-500 font-bold mb-0 md:mb-1 uppercase tracking-wider leading-tight">Belum Aktif</p>
+                            <p id="stat-tidak-aktif" class="text-base md:text-4xl font-extrabold text-red-500 leading-none mt-1">0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="provinsi" class="py-16 max-w-7xl mx-auto px-4 relative z-10 w-full" style="margin-top: 40px !important;">
+                <div class="text-center mb-10 w-full">
+                    <h2 class="text-2xl font-bold text-navy border-b-4 border-gold inline-block pb-2">Daftar Anggota Provinsi</h2>
+                    <div class="max-w-md mx-auto mt-6 relative">
+                        <input type="text" id="searchInput" onkeyup="filterProvinsi()" placeholder="Cari Nama Provinsi..." class="w-full pl-4 pr-10 py-3 rounded-full border-2 border-gray-200 focus:border-gold outline-none shadow-sm">
+                        <i class="fa-solid fa-search absolute right-4 top-4 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="relative w-full px-12 md:px-14">
+                    <button onclick="slideProvinsi(-1)" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gold text-navy w-10 h-10 flex items-center justify-center rounded-full shadow-lg z-20 hover:bg-yellow-500 transition"><i class="fa-solid fa-chevron-left"></i></button>
+                    <div id="provinsi-container" class="flex overflow-x-auto gap-4 md:gap-6 snap-x snap-mandatory py-4 hide-scrollbar scroll-smooth w-full"></div>
+                    <button onclick="slideProvinsi(1)" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gold text-navy w-10 h-10 flex items-center justify-center rounded-full shadow-lg z-20 hover:bg-yellow-500 transition"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </section>
+
+            <section id="pengurus-section" class="bg-gray-100 py-16 w-full">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="text-center mb-10"><h2 class="text-2xl font-bold text-navy border-b-4 border-gold inline-block pb-2">Pengurus Pusat</h2></div>
+                    <div class="relative max-w-5xl mx-auto">
+                        <div id="pengurus-container" class="flex overflow-x-auto gap-4 snap-x snap-mandatory py-4 hide-scrollbar scroll-smooth w-full"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="informasi" class="bg-white py-16 w-full">
+                <div class="max-w-7xl mx-auto px-4">
+                    <div class="text-center mb-10"><h2 class="text-2xl font-bold text-navy border-b-4 border-gold inline-block pb-2">Informasi</h2></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <div class="bg-gray-50 p-8 rounded-xl border border-gray-200 flex flex-col"><h3 class="text-2xl font-bold text-navy mb-4 border-b pb-2">ℹ️ Cara Daftar</h3><div id="yt-wrapper" class="yt-container mb-4 hidden"></div><p id="petunjuk-text" class="text-gray-700 whitespace-pre-line leading-relaxed flex-grow"></p><a id="btn-pdf-petunjuk" href="#" target="_blank" class="mt-4 bg-red-600 text-white text-center font-bold py-2 rounded hover:bg-red-700 hidden">📥 Download PDF Petunjuk</a></div>
+                        <div class="bg-white p-8 rounded-xl border border-gray-200 flex flex-col text-gray-800"><h3 class="text-2xl font-bold text-navy mb-4 border-b border-gray-300 pb-2">⚖️ Dasar Hukum</h3><div id="hukum-container" class="space-y-4"></div></div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 text-white pt-12 pb-6 border-t border-purple-800 w-full">
+                <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <div class="flex flex-col items-start space-y-3">
+                        <img id="ft-logo" src="" alt="Logo" class="h-16 w-16 object-contain bg-white p-1 rounded-lg hidden shadow">
+                        <h4 class="text-xl font-bold text-gold" id="ft-org">Nama Organisasi</h4>
+                        <p class="text-gray-400 text-sm font-mono" id="ft-sk">SK Kemenkumham: -</p>
+                        <p class="text-gray-400 text-sm" id="ft-alamat"><i class="fa-solid fa-map-location-dot mr-1 text-gold"></i> Alamat Lengkap</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-gold mb-4">Kontak</h4>
+                        <ul class="space-y-4 text-gray-300 text-sm" id="ft-kontak-list"></ul>
+                    </div>
+                    <div class="md:text-left lg:text-right">
+                        <h4 class="text-xl font-bold text-gold mb-4">Media Sosial</h4>
+                        <ul class="space-y-3 text-gray-300 text-sm flex flex-col items-start lg:items-end" id="sosmed-list"></ul>
+                    </div>
+                </div>
+                <div class="text-center text-white-600 text-sm border-t border-gray-800 pt-6">
+                    © 2026 <span id="ft-app">SAPA KTA</span> - All Rights Reserved. | <a href="javascript:void(0)" onclick="showPrivasiModal()" class="hover:text-gold transition border-b border-gray-500 hover:border-gold pb-1">Kebijakan Privasi</a> <br>
+                    <span>Created by <a href="https://www.farypin-inovasiteknologi.com/" target="_blank" style="color:white;text-decoration:none;font-weight:bold;border-bottom:1px dotted white">PT FARYPIN INOVASI TEKNOLOGI</a></span>
+                </div>
+            </footer>
+
+            <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[60] flex justify-between items-center h-[60px] px-2 pb-safe shadow-[0_-5px_15px_rgba(0,0,0,0.08)]">
+                <a href="#beranda" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-blue-600 transition">
+                    <i class="fa-solid fa-house text-lg mb-0.5"></i><span class="text-[10px] font-medium">Home</span>
+                </a>
+                <a href="#pengurus-section" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-blue-600 transition">
+                    <i class="fa-solid fa-users text-lg mb-0.5"></i><span class="text-[10px] font-medium">Pengurus</span>
+                </a>
+                <a href="#provinsi" class="flex flex-col items-center justify-center relative -top-4 w-16 text-gray-400 hover:text-blue-600 transition">
+                    <div class="bg-gradient-to-tr from-cyan-500 to-blue-600 text-white w-[50px] h-[50px] rounded-full flex items-center justify-center shadow-[0_4px_10px_rgba(6,182,212,0.4)] border-[3px] border-gray-50">
+                        <i class="fa-solid fa-address-card text-xl"></i>
+                    </div>
+                    <span class="text-[10px] font-bold mt-1 whitespace-nowrap">Daftar KTA</span>
+                </a>
+                <a href="#informasi" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-blue-600 transition">
+                    <i class="fa-solid fa-circle-info text-lg mb-0.5"></i><span class="text-[10px] font-medium">Informasi</span>
+                </a>
+                <button onclick="showAdminPusatModal()" class="flex flex-col items-center justify-center w-16 text-gray-400 hover:text-blue-600 transition">
+                    <i class="fa-solid fa-headset text-lg mb-0.5"></i><span class="text-[10px] font-medium">Admin</span>
+                </button>
+            </div>
+
+            <button id="btn-scroll-top-portal" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="md:hidden fixed bottom-[75px] left-4 bg-green-500 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center z-[55] opacity-0 transition-opacity duration-300 pointer-events-none border-2 border-white">
+                <i class="fa-solid fa-chevron-up text-xl"></i>
+            </button>
+        </div>
+
+        <div id="view-login" class="hidden fixed inset-0 bg-navy flex items-center justify-center z-[100]">
+            <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm relative">
+                <button onclick="switchView('view-public')" class="absolute top-4 left-4 text-gray-400 hover:text-red-500 font-bold">← Batal</button>
+                <h2 class="text-3xl font-bold text-center text-navy mt-6 mb-6">Login Admin Pusat</h2>
+                <form onsubmit="handleLoginPortal(event)">
+                    <div class="mb-4"><label class="block text-sm font-bold mb-2">Username</label><input type="text" id="username" class="w-full p-2 border rounded" required></div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="password" class="w-full p-2 border rounded pr-10" required>
+                            <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-800"><i id="eye-icon" class="fa-solid fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <button type="submit" id="btn-login-portal" class="w-full bg-gold text-navy font-bold py-2 rounded cursor-pointer">Masuk</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="view-admin" class="hidden fixed inset-0 bg-gray-100 flex flex-col md:flex-row overflow-hidden z-[100]">
+            <div class="md:hidden bg-navy text-white p-4 z-20 flex justify-between items-center shadow-md w-full absolute top-0">
+                <h1 class="text-lg font-bold text-gold">Admin Pusat</h1>
+                <select id="admin-mobile-menu" class="bg-gray-800 text-white border border-gray-600 p-2 rounded text-sm outline-none" onchange="handleMobileAdminMenu(this.value)">
+                    <option value="menu-dashboard">📊 Dashboard</option>
+                    <option value="menu-provinsi">📍 Daftar Anggota</option>
+                    <option value="menu-pengurus">👥 Pengurus</option>
+                    <option value="menu-slide">🖼️ Slide Foto</option>
+                    <option value="menu-hukum">⚖️ Dasar Hukum</option>
+                    <option value="menu-petunjuk">ℹ️ Petunjuk & Admin Pusat</option>
+                    <option value="menu-pengaturan">⚙️ Pengaturan Umum</option>
+                    <option value="logout">🚪 Keluar</option>
+                </select>
+            </div>
+
+            <aside class="hidden md:flex w-64 bg-navy text-white flex-col z-20 h-full">
+                <div class="p-6 border-b border-gray-700"><h1 class="text-xl font-bold text-gold">Panel Admin Pusat</h1></div>
+                <nav class="flex-1 p-4 space-y-2 overflow-y-auto text-sm">
+                    <button onclick="showMenu('menu-dashboard')" class="w-full text-left p-2 hover:bg-gray-800 rounded">📊 Dashboard</button>
+                    <button onclick="showMenu('menu-provinsi'); renderTablePortal('provinsi');" class="w-full text-left p-2 hover:bg-gray-800 rounded">📍 Daftar Anggota</button>
+                    <button onclick="showMenu('menu-pengurus'); renderTablePortal('pengurus');" class="w-full text-left p-2 hover:bg-gray-800 rounded">👥 Pengurus</button>
+                    <button onclick="showMenu('menu-slide'); renderTablePortal('slide');" class="w-full text-left p-2 hover:bg-gray-800 rounded">🖼️ Slide Foto</button>
+                    <button onclick="showMenu('menu-hukum'); renderTablePortal('hukum');" class="w-full text-left p-2 hover:bg-gray-800 rounded">⚖️ Dasar Hukum</button>
+                    <button onclick="showMenu('menu-petunjuk'); loadPetunjukAdmin();" class="w-full text-left p-2 hover:bg-gray-800 rounded">ℹ️ Petunjuk & Admin Pusat</button>
+                    <button onclick="showMenu('menu-pengaturan'); loadPengaturanAdmin();" class="w-full text-left p-2 hover:bg-gray-800 rounded">⚙️ Pengaturan Umum</button>
+                </nav>
+                <div class="p-4 border-t border-gray-700"><button onclick="logoutAdminPortal()" class="w-full bg-red-600 text-white p-2 rounded hover:bg-red-700 font-bold">Keluar</button></div>
+            </aside>
+
+            <main class="flex-1 p-4 md:p-8 overflow-y-auto relative text-gray-800 mt-[60px] md:mt-0 h-full w-full">
+               <div id="menu-dashboard" class="menu-content">
+                    <h2 class="text-3xl font-bold text-navy mb-4">Selamat Datang di Panel Admin Pusat!</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+                        <div class="bg-white p-5 rounded-xl shadow border-b-4 border-cyan-500">
+                            <p class="text-xs text-gray-500 font-bold mb-1">Total Provinsi</p>
+                            <h3 id="dash-prov" class="text-3xl font-extrabold text-navy">0</h3>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow border-b-4 border-yellow-500">
+                            <p class="text-xs text-gray-500 font-bold mb-1">Total Mendaftar</p>
+                            <h3 id="dash-daftar" class="text-3xl font-extrabold text-navy">0</h3>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow border-b-4 border-indigo-500">
+                            <p class="text-xs text-gray-500 font-bold mb-1">Punya KTA</p>
+                            <h3 id="dash-kta" class="text-3xl font-extrabold text-navy">0</h3>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow border-b-4 border-green-500">
+                            <p class="text-xs text-gray-500 font-bold mb-1">Anggota Aktif</p>
+                            <h3 id="dash-aktif" class="text-3xl font-extrabold text-navy">0</h3>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow border-b-4 border-red-500">
+                            <p class="text-xs text-gray-500 font-bold mb-1">Tidak Aktif</p>
+                            <h3 id="dash-nonaktif" class="text-3xl font-extrabold text-navy">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow w-full max-w-4xl border border-gray-100">
+                        <h3 class="font-bold text-navy mb-6 text-lg border-b pb-2">Statistik Penyebaran Anggota Nasional</h3>
+                        <canvas id="dashboardChart" style="max-height: 350px;"></canvas>
+                    </div>
+                </div>
+                
+                <div id="menu-provinsi" class="menu-content hidden">
+                    <div class="flex flex-col sm:flex-row justify-between mb-4 gap-2"><h2 class="text-2xl font-bold">Daftar Anggota Provinsi</h2><button onclick="openFormPortal('provinsi')" class="bg-green-600 text-white px-3 py-2 sm:py-1 rounded shadow">+ Tambah</button></div>
+                    <div class="mb-4 relative"><input type="text" id="adminSearchProv" onkeyup="filterAdminProv()" placeholder="Cari Nama Provinsi..." class="w-full border p-2 rounded shadow-sm"></div>
+                    <div class="bg-white rounded shadow overflow-x-auto"><table class="min-w-full"><tbody id="table-provinsi"></tbody></table></div>
+                    <div id="pagination-provinsi" class="flex justify-center flex-wrap gap-2 mt-4 hidden"></div>
+                </div>
+
+                <div id="menu-pengurus" class="menu-content hidden">
+                    <div class="flex flex-col sm:flex-row justify-between mb-4 gap-2"><h2 class="text-2xl font-bold">Susunan Pengurus</h2><button onclick="openFormPortal('pengurus')" class="bg-green-600 text-white px-3 py-2 sm:py-1 rounded shadow">+ Tambah</button></div>
+                    <div class="mb-4 relative"><input type="text" id="adminSearchPengurus" onkeyup="filterAdminPengurus()" placeholder="Cari Nama atau Jabatan..." class="w-full border p-2 rounded shadow-sm"></div>
+                    <div class="bg-white rounded shadow overflow-x-auto"><table class="min-w-full"><tbody id="table-pengurus"></tbody></table></div>
+                    <div id="pagination-pengurus" class="flex justify-center flex-wrap gap-2 mt-4 hidden"></div>
+                </div>
+
+                <div id="menu-slide" class="menu-content hidden"><div class="flex flex-col sm:flex-row justify-between mb-4 gap-2"><h2 class="text-2xl font-bold">Slide Hero</h2><button onclick="openFormPortal('slide')" class="bg-green-600 text-white px-3 py-2 sm:py-1 rounded shadow">+ Tambah</button></div><div class="bg-white rounded shadow overflow-x-auto"><table class="min-w-full"><tbody id="table-slide"></tbody></table></div></div>
+                <div id="menu-hukum" class="menu-content hidden"><div class="flex flex-col sm:flex-row justify-between mb-4 gap-2"><h2 class="text-2xl font-bold">Dasar Hukum</h2><button onclick="openFormPortal('hukum')" class="bg-green-600 text-white px-3 py-2 sm:py-1 rounded shadow">+ Tambah</button></div><div class="bg-white rounded shadow overflow-x-auto"><table class="min-w-full"><tbody id="table-hukum"></tbody></table></div></div>
+                
+                <div id="menu-petunjuk" class="menu-content hidden">
+                    <h2 class="text-2xl font-bold mb-4">Manajemen Petunjuk</h2>
+                    <div class="bg-white p-6 rounded shadow max-w-2xl"><form onsubmit="handleSavePetunjuk(event)"><div class="mb-4"><label class="block font-bold">Narasi Petunjuk</label><textarea id="ptj-narasi" rows="4" class="w-full border p-2 rounded"></textarea></div><div class="mb-4"><label class="block font-bold">Link YouTube</label><input type="url" id="ptj-yt" class="w-full border p-2 rounded"></div><div class="mb-4"><label class="block font-bold">Upload PDF Baru (Opsional)</label><input type="file" id="ptj-pdf" accept=".pdf" class="w-full border p-2"></div><button type="submit" id="btn-save-ptj" class="w-full sm:w-auto bg-navy text-white px-4 py-2 rounded">Simpan Petunjuk</button></form></div>
+                    <h2 class="text-2xl font-bold mb-4 mt-8 pt-6 border-t border-gray-300">Data Admin Pusat</h2>
+                    <div class="bg-white p-6 rounded shadow max-w-2xl"><form onsubmit="execSaveAdminPusat(event)"><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"><div><label class="block font-bold text-sm">Nama Lengkap</label><input type="text" id="adm-nama" class="w-full border p-2 rounded" required></div><div><label class="block font-bold text-sm">Jabatan</label><input type="text" id="adm-jabatan" class="w-full border p-2 rounded" required></div><div><label class="block font-bold text-sm">No. HP/WA</label><input type="text" id="adm-hp" class="w-full border p-2 rounded" required></div><div><label class="block font-bold text-sm">Email</label><input type="email" id="adm-email" class="w-full border p-2 rounded" required></div></div><div class="mb-4"><label class="block font-bold text-sm">Upload Foto Baru (Crop 3:4)</label><input type="file" accept="image/*" class="w-full border p-2 mb-2 rounded" onchange="initCropperAdm(event, 3/4)"><div class="w-full max-h-64 overflow-hidden bg-gray-200 mb-2 rounded"><img id="cropper-img-adm" class="max-w-full hidden"></div></div><button type="submit" id="btn-save-adm" class="w-full sm:w-auto bg-navy text-white px-4 py-2 rounded font-bold">Simpan Admin Pusat</button><p id="adm-stat" class="text-xs mt-1 text-green-600 font-bold"></p></form></div>
+                </div>
+
+                <div id="menu-pengaturan" class="menu-content hidden">
+                    <h2 class="text-2xl font-bold mb-4">Pengaturan Aplikasi & Organisasi</h2>
+                    <div class="bg-white p-6 rounded shadow max-w-4xl">
+                        <form onsubmit="savePengaturanUmum(event)">
+                            <h3 class="font-bold text-navy border-b mb-3 pb-1">Data Identitas</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"><div><label class="text-xs font-bold">Nama Aplikasi Singkat</label><input type="text" id="set-app" class="w-full border p-2 rounded" required></div><div><label class="text-xs font-bold">Nama Organisasi</label><input type="text" id="set-org" class="w-full border p-2 rounded" required></div><div class="sm:col-span-2"><label class="text-xs font-bold">Nama Panjang Organisasi</label><input type="text" id="set-panjang" class="w-full border p-2 rounded" required></div><div class="sm:col-span-2"><label class="text-xs font-bold">Nomor SK Kemenkumham</label><input type="text" id="set-sk" class="w-full border p-2 rounded"></div></div>
+
+                            <h3 class="font-bold text-navy border-b mb-3 pb-1 mt-6">Papan Pengumuman</h3>
+                            <div class="mb-4">
+                                <label class="text-xs font-bold">Teks Pengumuman Berjalan (Marquee)</label>
+                                <input type="text" id="set-pengumuman" placeholder="Ketik pengumuman di sini..." class="w-full border p-2 rounded focus:border-gold outline-none shadow-sm">
+                            </div>
+
+                            <h3 class="font-bold text-navy border-b mb-3 pb-1 mt-6">Data Kontak</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"><div><label class="text-xs font-bold">Website Utama</label><input type="url" id="set-web" class="w-full border p-2 rounded"></div><div><label class="text-xs font-bold">Email</label><input type="email" id="set-email" class="w-full border p-2 rounded"></div><div><label class="text-xs font-bold">No Telepon / HP</label><input type="text" id="set-hp" class="w-full border p-2 rounded"></div><div class="sm:col-span-2"><label class="text-xs font-bold">Alamat Lengkap</label><textarea id="set-alamat" rows="2" class="w-full border p-2 rounded"></textarea></div></div>
+                            <h3 class="font-bold text-navy border-b mb-3 pb-1 mt-6">Media Sosial</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"><div><label class="text-xs font-bold"><i class="fa-brands fa-instagram text-pink-500"></i> Instagram</label><input type="text" id="set-ig" placeholder="Link / Username" class="w-full border p-2 rounded"></div><div><label class="text-xs font-bold"><i class="fa-brands fa-facebook text-blue-600"></i> Facebook</label><input type="text" id="set-fb" placeholder="Link / Username" class="w-full border p-2 rounded"></div><div><label class="text-xs font-bold"><i class="fa-brands fa-x-twitter text-gray-800"></i> X (Twitter)</label><input type="text" id="set-x" placeholder="Link / Username" class="w-full border p-2 rounded"></div><div><label class="text-xs font-bold"><i class="fa-brands fa-youtube text-red-600"></i> YouTube</label><input type="text" id="set-yt" placeholder="Link / Channel" class="w-full border p-2 rounded"></div><div><label class="text-xs font-bold"><i class="fa-brands fa-telegram text-blue-400"></i> Telegram</label><input type="text" id="set-tg" placeholder="Link / Username" class="w-full border p-2 rounded"></div><div><label class="text-xs font-bold"><i class="fa-brands fa-tiktok text-gray-800"></i> TikTok</label><input type="text" id="set-tt" placeholder="Link / Username" class="w-full border p-2 rounded"></div></div>
+                            <h3 class="font-bold text-navy border-b mb-3 pb-1 mt-6">Kebijakan Privasi</h3>
+                            <div class="mb-4 bg-white border border-gray-300 rounded overflow-hidden"><div id="editor-privasi" style="height: 250px;"></div></div>
+                            <h3 class="font-bold text-navy border-b mb-3 pb-1 mt-6">Logo Aplikasi</h3>
+                            <div class="mb-4"><label class="text-xs font-bold">Upload Logo Baru (PNG/JPG, Opsional)</label><input type="file" id="set-logo" accept="image/*" class="w-full border p-2 rounded"></div>
+                            <button type="submit" id="btn-save-pengaturan" class="w-full bg-navy text-white px-6 py-3 rounded font-bold mt-4 shadow-lg">Simpan Seluruh Pengaturan</button>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div id="modal-global-portal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[200]">
+            <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative m-4">
+                <div class="flex justify-between items-center mb-4 border-b pb-3"><h2 id="modal-title-portal" class="text-2xl font-bold text-navy"></h2><div id="modal-header-actions-portal"><button onclick="closeModalPortal()" class="text-red-500 font-bold text-2xl cursor-pointer">X</button></div></div>
+                <div id="modal-body-portal"></div>
+            </div>
+        </div>
+    </div> <div id="wrapper-kta" style="display: none;">
+        
+        <button onclick="handleManualRefresh()" class="btn-refresh-float" title="Refresh Data">
+            <i class="fa fa-sync-alt"></i>
+        </button>
+
+        <div id="loader"><div class="spinner"></div><p style="margin-top:15px; font-weight:600; color:#4f46e5">MEMUAT...</p></div>
+        <div id="app" class="hidden"></div>
+
+        <button onclick="scrollToTop()" id="scrollTopBtn" title="Kembali ke atas"><i class="fa fa-arrow-up"></i></button>
+
+        <div id="searchModal" class="modal">
+            <div class="modal-content" style="max-width:400px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+                    <h3>Cek Keanggotaan</h3>
+                    <button onclick="closeModalKTA('searchModal')" style="border:none;background:none;color:red;font-size:24px">×</button>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px">
+                    <button onclick="switchSearchMode('nik')" id="btnModeNik" class="btn btn-sm btn-primary" style="flex:1">Via NIK</button>
+                    <button onclick="switchSearchMode('bio')" id="btnModeBio" class="btn btn-sm btn-outline" style="flex:1">Via Nama & Tgl.Lahir</button>
+                </div>
+                <div id="searchBoxNik">
+                    <input type="text" id="publicNikInput" placeholder="Masukkan NIK/No.KTP (16 Angka)" style="width:100%;padding:10px;border:2px solid #e5e7eb;border-radius:8px">
+                </div>
+                <div id="searchBoxBio" style="display:none">
+                    <input type="text" id="publicNameInput" placeholder="Nama Lengkap (Boleh nama depan)" style="width:100%;padding:10px;border:2px solid #e5e7eb;border-radius:8px;margin-bottom:10px">
+                    <label style="font-size:12px;color:#666">Tanggal Lahir:</label>
+                    <input type="date" id="publicTglInput" style="width:100%;padding:10px;border:2px solid #e5e7eb;border-radius:8px">
+                </div>
+                <button onclick="handlePublicSearch()" class="btn btn-primary" style="width:100%;margin-top:15px"><i class="fa fa-search"></i> CARI DATA ANGGOTA</button>
+                <div id="searchResultArea" style="display:none;margin-top:15px;background:#f9fafb;padding:15px;border-radius:10px;border:1px dashed #cbd5e1"></div>
+            </div>
+        </div>
+
+        <div id="adminModal" class="modal">
+            <div class="modal-content">
+                <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                    <h3 style="margin:0">Form Data Anggota</h3>
+                    <button onclick="closeModalKTA('adminModal')" style="background:none; border:none; font-size:24px; color:#ef4444; cursor:pointer">×</button>
+                </div>
+                <form id="formMember" onsubmit="handleSave(event)">
+                    <input type="hidden" id="m_row"><input type="hidden" id="m_curFoto"><input type="hidden" id="m_base64">
+                    <div id="superAdminFields" class="hidden" style="background:#fff7ed; padding:15px; border-radius:12px; border:1px dashed #f97316; margin-bottom:20px">
+                        <h4 style="color:#c2410c; margin-bottom:10px"><i class="fa fa-lock"></i> SUPER ADMIN AREA</h4>
+                        <div class="form-grid">
+                            <div><label>Kode Depan (AE)</label><input type="text" id="m_ae" oninput="sanitizeNumber(this)" onchange="validateTwoDigit(this)" placeholder="2 Digit" style="border-color:#fb923c"></div>
+                            <div><label>Nomor Urut (AF)</label><input type="text" id="m_af" oninput="sanitizeNumber(this)" onchange="validateFourDigit(this)" placeholder="4 Digit" style="border-color:#fb923c;background:#fff"></div>
+                            <div><label>Kode Prov (AD)</label><input type="text" id="m_ad" oninput="sanitizeNumber(this)" onchange="validateTwoDigit(this)" placeholder="2 Digit" style="border-color:#fb923c"></div>
+                            <div class="full-w"><label>Preview NIA (AG) - Murni Angka</label><input type="text" id="m_ag" readonly style="background:#eee; font-weight:bold; color:#c2410c"></div>
+                        </div>
+                    </div>
+                    <div class="full-w" style="margin-bottom:10px; background:#f0f9ff; padding:10px; border-radius:8px; border:1px solid #bae6fd">
+                        <label style="color:#0369a1">NIA (Nomor Identitas Anggota)</label>
+                        <input type="text" id="m_nia" readonly style="font-weight:bold; font-size:16px; color:#0369a1; background:white;">
+                        <small style="color:#64748b">Generated by System</small>
+                    </div>
+                    <h4 style="color:#4f46e5;border-bottom:1px solid #eee;margin-bottom:15px">Identitas</h4>
+                    <div class="form-grid">
+                        <div><label>ID/NIA</label><input type="text" id="m_id" placeholder="Auto" readonly style="background:#f9fafb"></div>
+                        <div><label>NIK/No. KTP</label><input type="text" id="m_nik"></div>
+                        <div class="full-w"><label>Nama</label><input type="text" id="m_nama" placeholder="Isi nama sesuai KTP" required></div>
+                        <div><label>Gelar Dpn</label><input type="text" id="m_gelarD"></div><div><label>Gelar Blkg</label><input type="text" id="m_gelarB"></div>
+                        <div><label>JK</label><select id="m_jk"><option>Laki-laki</option><option>Perempuan</option></select></div>
+                        <div><label>Agama</label>
+                            <select id="m_agama">
+                                <option value="">- Pilih -</option><option>Islam</option><option>Kristen</option><option>Katolik</option>
+                                <option>Hindu</option><option>Buddha</option><option>Konghucu</option><option>Lainnya</option>
+                            </select>
+                        </div>
+                        <div><label>HP/WA</label><input type="text" id="m_hp"></div>
+                        <div><label>Email</label><input type="email" id="m_email"></div>
+                        <div><label>Tmpt Lhr</label><input type="text" id="m_tmpLahir" placeholder="Isi tempat lahir sesuai KTP"></div>
+                        <div><label>Tgl Lahir</label><input type="date" id="m_tglLahir" onchange="updateStatusAuto()"></div>
+                        <div><label>Pass</label>
+                            <div style="position:relative;">
+                                <input type="password" id="m_pass" style="width:100%; padding-right:35px;">
+                                <i class="fa fa-eye" onclick="togglePassVisibility('m_pass', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#64748b; font-size:14px;"></i>
+                            </div>
+                        </div>
+                        <div><label>Pend. Terakhir</label>
+                            <select id="m_pend">
+                                <option value="">- Pilih -</option><option>SD/Sederajat</option><option>SLTP/Sederajat</option><option>SLTA/Sederajat</option>
+                                <option>D.II</option><option>D.III</option><option>S1/D.IV</option><option>S2</option><option>S3</option>
+                            </select>
+                        </div>
+                        <div class="full-w"><label>Alamat</label><textarea id="m_alamat" rows="2" placeholder="Isi alamat lengkap"></textarea></div>
+                    </div>
+                    <h4 style="color:#4f46e5;border-bottom:1px solid #eee;margin:20px 0 15px">Instansi & Wilayah</h4>
+                    <div class="form-grid">
+                        <div><label>Unit Kerja</label><input type="text" id="m_unit" placeholder="contoh : SMAN.../SMKN..../SMPN..../SDN......."></div>
+                        <div><label>Jabatan</label><input type="text" id="m_jabatan" placeholder="contoh : Kepala TU/Staf TU/Arsiparis/Satpam/Petugas Kebersihan, dll"></div>
+                        <div><label>Sts Pegawai</label><select id="m_statPeg"><option>PNS</option><option>PPPK</option><option>PPPK-PW</option><option>Kontrak</option><option>Honorer</option></select></div>
+                        <div><label>Status Sekolah</label><select id="m_statSek"><option value="">- Pilih -</option><option>NEGERI</option><option>SWASTA</option></select></div>
+                        <div><label>Jenjang Sekolah</label><select id="m_jenjang"><option>TK/PAUD</option><option>SD</option><option>SLTP</option><option>SLTA</option></select></div>
+                        <div><label>Mulai Tugas </label><input type="date" id="m_mulai"></div>
+                        <div><label>Provinsi</label><select id="m_prov" onchange="loadRegencies(this.value, 'm_kab')"></select></div><div><label>Kab/Kota tempat kerja</label><select id="m_kab"></select></div>
+                    </div>
+                    <h4 style="color:#4f46e5;border-bottom:1px solid #eee;margin:20px 0 15px">Org & File</h4>
+                    <div class="form-grid">
+                        <div><label>Status</label>
+                            <select id="m_status" onchange="manualStatusChange()">
+                                <option value="BELUM AKTIF">BELUM AKTIF</option><option value="AKTIF">AKTIF</option><option value="NONAKTIF/MUTASI">NONAKTIF/MUTASI</option><option value="PENSIUN">PENSIUN</option>
+                            </select>
+                        </div>
+                        <div><label>Jabatan Org (AH)</label>
+                            <select id="m_jabOrg">
+                                <option value="">- Pilih -</option><option>Ketua Umum</option><option>Sekretaris Jenderal</option><option>Bendahara Umum</option>
+                                <option>Ketua</option><option>Sekretaris</option><option>Bendahara</option><option>Anggota Pengurus</option><option>Anggota Biasa</option>
+                                <option>Dewan Pembina</option><option>Dewan Pakar</option><option>Dewan Penasehat</option>
+                            </select>
+                        </div>
+                        <div><label>Tingkat Pengurus(AI)</label>
+                            <select id="m_tingkat">
+                                <option value="">- Pilih -</option><option>Pusat</option><option>Daerah/Provinsi</option><option>Cabang/Kab-Kota</option>
+                            </select>
+                        </div>
+                        <div><label>Masa KTA (AK)</label><input type="date" id="m_masaKta" readonly style="background:#f3f4f6"></div>
+                        <div class="full-w"><label>Link KTA (PDF)</label><input type="text" id="m_linkKta" placeholder="Kosongkan jika tidak ada"></div>
+                        <div class="full-w">
+                            <label>Foto Anggota (3:4)</label>
+                            <input type="file" id="m_file_input" onchange="handleManualCrop(event, 'm_crop_area', 'm_preview_final')" accept="image/*">
+                            <input type="hidden" id="m_base64"> 
+                            <div id="m_crop_container" style="display:none; margin-top:10px; background:#f0f0f0; padding:10px; border-radius:10px;">
+                                <div id="m_crop_area"></div>
+                                <button type="button" class="btn btn-sm btn-green" onclick="executeCrop('m_crop_area', 'm_base64', 'm_crop_container', 'm_preview_final')" style="width:100%; margin-top:5px">Kunci Foto</button>
+                            </div>
+                            <div id="m_preview_final" style="margin-top:10px; text-align:center"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px; display:flex; justify-content:space-between">
+                        <button type="button" class="btn btn-red" onclick="resetPass()">Reset Password</button>
+                        <button type="submit" class="btn btn-green">SIMPAN DATA</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="adminProfileModal" class="modal">
+            <div class="modal-content" style="max-width:400px">
+                <h3>Edit Profil Admin</h3>
+                <form onsubmit="handleAdminProfileSave(event)">
+                    <input type="hidden" id="adm_row">
+                    <div style="margin-bottom:10px"><label>Nama Lengkap</label><input type="text" id="adm_name" required style="width:100%"></div>
+                    <div style="margin-bottom:10px"><label>Username</label><input type="text" id="adm_user" required style="width:100%"></div>
+                    <div style="margin-bottom:10px"><label>Password</label>
+                        <div style="position:relative;">
+                            <input type="password" id="adm_pass" required style="width:100%; padding-right:40px;">
+                            <i class="fa fa-eye" onclick="togglePassVisibility('adm_pass', this)" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer; color:#64748b;"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;margin-top:15px">Simpan Perubahan</button>
+                </form>
+                <button onclick="closeModalKTA('adminProfileModal')" class="btn btn-outline" style="width:100%;margin-top:10px">Batal</button>
+            </div>
+        </div>
+
+        <div id="detailModal" class="modal">
+            <div class="modal-content" style="max-width:550px">
+                <div style="display:flex;justify-content:space-between;margin-bottom:15px">
+                    <h3 style="color:#4f46e5">Detail Anggota</h3>
+                    <button onclick="closeModalKTA('detailModal')" style="border:none;background:none;color:red;font-size:24px">×</button>
+                </div>
+                <div style="text-align:center;margin-bottom:20px">
+                    <img id="dFoto" src="" style="width:120px;height:120px;border-radius:50%;border:4px solid #eee;object-fit:cover">
+                    <h3 id="dName" style="margin-top:10px"></h3>
+                    <p id="dJob" style="color:#64748b"></p>
+                    <span id="dStatus" style="display:inline-block;margin-top:5px;padding:3px 10px;background:#dcfce7;color:#16a34a;border-radius:15px;font-size:11px;font-weight:700"></span>
+                </div>
+                <div id="dContent" style="padding:15px;background:#f9fafb;border-radius:12px;border:1px solid #eee"></div>
+                <div id="dAction" style="margin-top:20px;text-align:center"></div>
+                <button class="btn btn-outline" onclick="checkAndDownloadBg(currentDetailMember)" style="width:100%;margin-top:10px; border-style:dashed; color:#4f46e5"><i class="fa fa-image"></i> Unduh KTA Belakang (PNG)</button>
+            </div>
+        </div>
+
+        <div id="selfEditModal" class="modal">
+            <div class="modal-content" style="max-width:550px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3>Edit Profil Saya</h3>
+                    <button onclick="closeModalKTA('selfEditModal')" style="background:none; border:none; font-size:24px; color:#ef4444; cursor:pointer">×</button>
+                </div>
+                <form id="formSelf" onsubmit="handleSelfSave(event)">
+                    <input type="hidden" id="s_row"><input type="hidden" id="s_curFoto"><input type="hidden" id="s_base64">
+                    <div class="full-w" style="text-align:center;margin-bottom:15px">
+                        <div id="s_preview_final" style="width:120px;height:160px;border-radius:8px;background:#eee;margin:0 auto 10px;overflow:hidden;border:2px solid #ddd"></div>
+                        <label class="btn btn-outline btn-sm" style="cursor:pointer">Ganti Foto
+                            <input type="file" style="display:none" onchange="handleManualCrop(event, 's_crop_area', 's_preview_final')" accept="image/*">
+                        </label>
+                        <input type="hidden" id="s_base64">
+                        <div id="s_crop_container" style="display:none; margin-top:10px; background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #e2e8f0">
+                            <div id="s_crop_area"></div>
+                            <button type="button" class="btn btn-sm btn-orange" onclick="executeCrop('s_crop_area', 's_base64', 's_crop_container', 's_preview_final')" style="width:100%; margin-top:5px">Kunci Foto Baru</button>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div><label>Tmpt Lhr</label><input type="text" id="s_tmpLahir" placeholder="Isi tempat lahir sesuai KTP"></div>
+                        <div><label>Tgl Lahir</label><input type="date" id="s_tglLahir" onchange="updateStatusAuto()"></div>
+                        <div><label>JK</label><select id="s_jk"><option>Laki-laki</option><option>Perempuan</option></select></div>
+                        <div><label>Agama</label>
+                            <select id="s_agama">
+                                <option value="">- Pilih -</option><option>Islam</option><option>Kristen</option><option>Katolik</option>
+                                <option>Hindu</option><option>Buddha</option><option>Konghucu</option><option>Lainnya</option>
+                            </select>
+                        </div>
+                        <div><label>Pend. Terakhir</label>
+                            <select id="s_pend">
+                                <option value="">- Pilih -</option><option>SD/Sederajat</option><option>SLTP/Sederajat</option><option>SLTA/Sederajat</option>
+                                <option>D.II</option><option>D.III</option><option>S1/D.IV</option><option>S2</option><option>S3</option>
+                            </select>
+                        </div>
+                        <div><label>Provinsi</label><select id="s_prov" onchange="loadRegencies(this.value, 's_kab')"></select></div>
+                        <div><label>Kab/Kota tempat kerja</label><select id="s_kab"></select></div>
+                        <div><label>Unit Kerja</label><input type="text" id="s_unit" placeholder="contoh : SMAN.../SMKN..../SMPN..../SDN......."></div>
+                        <div><label>Status Sekolah</label><select id="s_statSek" required><option value="">Pilih Status</option><option value="NEGERI">NEGERI</option><option value="SWASTA">SWASTA</option></select></div>
+                        <div><label>Jabatan</label><input type="text" id="s_jabatan" placeholder="contoh : Kepala TU/Staf TU/Arsiparis/Satpam/Petugas Kebersihan, dll"></div>
+                        <div><label>Status Peg</label><select id="s_statPeg"><option>PNS</option><option>PPPK</option><option>PPPK-PW</option><option>Kontrak</option><option>Honorer</option></select></div>
+                        <div><label>Jenjang Sklh</label><select id="s_jenjang"><option>TK/PAUD</option><option>SD</option><option>SLTP</option><option>SLTA</option></select></div>
+                        <div><label>Mulai Tugas</label><input type="date" id="s_mulai"></div>
+                        <div><label>HP/WA</label><input type="text" id="s_hp"></div>
+                        <div><label>Email</label><input type="email" id="s_email"></div>
+                        <div class="full-w"><label>Alamat</label><textarea id="s_alamat" rows="2" placeholder="Isi alamat lengkap"></textarea></div>
+                    </div>
+                    <button type="submit" class="btn btn-orange" style="width:100%; margin-top:20px">Update Profil</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="passModal" class="modal">
+            <div class="modal-content" style="max-width:400px">
+                <h3>Ganti Password</h3>
+                <form onsubmit="handlePassChange(event)">
+                    <div style="position:relative; margin-bottom:10px;">
+                        <input type="password" id="cp_old" placeholder="Password Lama" required style="width:100%; padding-right:40px;">
+                        <i class="fa fa-eye" onclick="togglePassVisibility('cp_old', this)" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer; color:#64748b;"></i>
+                    </div>
+                    <div style="position:relative; margin-bottom:10px;">
+                        <input type="password" id="cp_new" placeholder="Password Baru" required style="width:100%; padding-right:40px;">
+                        <i class="fa fa-eye" onclick="togglePassVisibility('cp_new', this)" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer; color:#64748b;"></i>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:100%;margin-top:15px">Simpan</button>
+                </form>
+                <button onclick="closeModalKTA('passModal')" class="btn btn-outline" style="width:100%;margin-top:10px">Batal</button>
+            </div>
+        </div>
+
+        <div id="ktaGenModal" class="modal">
+            <div class="modal-content" style="max-width:450px;text-align:center">
+                <h3>Unduh KTA Digital</h3> <br>
+                <canvas id="ktaCanvas" width="600" height="380" style="display:block;width:100%;max-width:100%;height:auto;border-radius:10px;margin:20px 0;box-shadow:0 5px 15px rgba(0,0,0,0.2)"></canvas>
+                <a id="downloadKtaBtn" class="btn btn-primary" download="KTA_Digital.png">Unduh Gambar (PNG)</a>
+                <button onclick="closeModalKTA('ktaGenModal')" class="btn btn-outline" style="margin-top:10px">Tutup</button>
+            </div>
+        </div>
+
+        <div id="regModal" class="modal">
+            <div class="modal-content" style="max-width:600px">
+                <div style="text-align:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px">
+                    <h3 style="color:#4f46e5; margin:0 0 5px 0">Formulir Pendaftaran Anggota</h3>
+                    <h4 id="lblRegOrg" style="margin:0; font-weight:700; color:#333; font-size:16px">Loading...</h4>
+                    <p id="lblRegProv" style="margin:0; color:#64748b; font-size:13px">Loading...</p>
+                </div>
+                <form id="formReg" onsubmit="handleRegistration(event)">
+                    <div class="form-grid">
+                        <div class="full-w"><label>NIK (16 Digit)</label><input type="text" id="r_nik" required oninput="sanitizeNumber(this)" maxlength="16" placeholder="16 Digit Angka"></div>
+                        <div class="full-w"><label>Nama Lengkap (Tanpa Gelar)</label><input type="text" id="r_nama" placeholder="Isi nama sesuai KTP" required></div>
+                        <div><label>Tempat Lahir</label><input type="text" id="r_tmp" placeholder="Isi Tempat lahir sesuai KTP" required></div>
+                        <div><label>Tanggal Lahir</label><input type="date" id="r_tgl" required></div>
+                        <div><label>Jenis Kelamin</label><select id="r_jk"><option>Laki-laki</option><option>Perempuan</option></select></div>
+                        <div><label>Agama</label>
+                            <select id="r_agama" required>
+                                <option value="">- Pilih -</option><option>Islam</option><option>Kristen</option><option>Katolik</option>
+                                <option>Hindu</option><option>Buddha</option><option>Konghucu</option><option>Lainnya</option>
+                            </select>
+                        </div>
+                        <div><label>HP/WhatsApp</label><input type="text" id="r_hp" required></div>
+                        <div><label>Email (Aktif)</label><input type="email" id="r_email" placeholder="email@contoh.com" required></div>
+                        <div><label>Unit Kerja</label><input type="text" id="r_unit" placeholder="contoh : SMAN 1...." required></div>
+                        <div><label>Status Sekolah</label><select id="r_statSek" required><option value="">Pilih Status</option><option value="NEGERI">NEGERI</option><option value="SWASTA">SWASTA</option></select></div>
+                        <div><label>Jabatan</label><input type="text" id="r_jab" placeholder="contoh : Kepala Tu/Staf/Operator/dll." required></div>
+                        <div><label>Status Pegawai</label><select id="r_statPeg"><option>PNS</option><option>PPPK</option><option>PPPK-PW</option><option>Kontrak</option><option>Honorer</option></select></div>
+                        <div><label>Pendidikan Terakhir</label>
+                            <select id="r_pend" required>
+                                <option value="">- Pilih -</option><option>SD/Sederajat</option><option>SLTP/Sederajat</option><option>SLTA/Sederajat</option>
+                                <option>D.II</option><option>D.III</option><option>S1/D.IV</option><option>S2</option><option>S3</option>
+                            </select>
+                        </div>
+                        <div class="full-w"><label>Alamat Lengkap (Jalan, RT/RW, Desa/Kelurahan)</label><textarea id="r_alamat" rows="2" placeholder="Isi alamat domisili lengkap" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px"></textarea></div>
+                        <div class="full-w"><label>Provinsi</label><select id="r_prov" onchange="loadRegencies(this.value, 'r_kab')" required></select></div>
+                        <div class="full-w"><label>Kab/Kota tempat kerja</label><select id="r_kab" required><option value="">Pilih Provinsi Dahulu</option></select></div>
+                        <div class="full-w">
+                            <label>Pas Foto (Otomatis Crop 3:4)</label>
+                            <input type="file" id="r_file" accept="image/*" onchange="handleFileAndCrop(event)" required>
+                            <input type="hidden" id="r_base64">
+                            <div id="r_preview" style="margin-top:10px; text-align:center"></div>
+                        </div>
+                        <div id="r_preview_container" style="display:none; margin-top:10px;">
+                            <div id="crop_area"></div>
+                            <button type="button" class="btn btn-sm btn-green" onclick="saveCrop()" style="width:100%; margin-top:5px">Kunci Foto (Selesai Crop)</button>
+                        </div>
+                        <div id="final_preview_container" style="margin-top:10px; text-align:center"></div>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:25px">
+                        <button type="button" class="btn btn-red" onclick="closeModalKTA('regModal')" style="flex:1"><i class="fa fa-times"></i> BATAL</button>
+                        <button type="submit" class="btn btn-primary" style="flex:2"><i class="fa fa-paper-plane"></i> KIRIM PENDAFTARAN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div> <script src="script.js"></script>
+</body>
+</html>
