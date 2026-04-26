@@ -874,10 +874,14 @@ function renderLogin() {
   var btnRef = document.querySelector('#wrapper-kta .btn-refresh-float'); if(btnRef) btnRef.style.display = 'none';
   var s = appData.settings || {nama:'Loading...', singkatan:'APP', logo:''};
   var cleanLogo = getImageUrl(s.logo);
+
   var html = '<div class="login-body"><div class="marquee-bar"><marquee>📢 '+ (s.running||'Selamat Datang') +'</marquee></div>';
   html += '<div class="glass-card"><img src="'+cleanLogo+'" class="logo-anim" onerror="this.src=\'https://via.placeholder.com/100?text=LOGO\';">';
-  html += '<h3>'+s.singkatan+'</h3><p style="color:var(--text-gray);margin-bottom:25px">'+s.nama+'<br>'+(s.provinsi_default||'')+'</p>';
+  
+  html += '<h3>'+s.singkatan+'</h3><p style="color:var(--text-gray);margin-bottom:25px;font-weight:600;">'+s.nama+'<br><span style="text-transform:uppercase; color:#4f46e5;">PROVINSI '+(s.provinsi_default||'')+'</span></p>';
+  
   html += '<form onsubmit="doLogin(event)"><input type="text" id="u" placeholder="Username/NIA" required>';
+
   html += '<div style="position:relative; margin-top:10px;"><input type="password" id="p" placeholder="Password" required style="padding-right:45px;"><i class="fa fa-eye" id="togglePass" onclick="togglePasswordLogin()" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer; color:#64748b; font-size:18px;"></i></div>';
   html += '<button type="submit" class="btn-glow">MASUK</button><div style="margin-top:15px; text-align:center;"><a onclick="showForgotInfo()" style="color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline;">Lupa Password?</a></div></form>';
 
@@ -1092,7 +1096,38 @@ function handlePublicSearch() {
     }).catch(function(e) { showLoader(false); Swal.fire('Error', 'Gagal pencarian: '+e.message, 'error'); }); 
 }
 
-function openRegistrationModal() { document.getElementById('formReg').reset(); document.getElementById('r_preview').innerHTML = ""; document.getElementById('r_base64').value = ""; document.getElementById('r_preview_container').style.display = 'none'; if (appData.settings) { document.getElementById('lblRegOrg').innerText = appData.settings.nama; document.getElementById('lblRegProv').innerText = appData.settings.provinsi_default; } var provSelect = document.getElementById('r_prov'); if (provSelect.options.length <= 1) { loadProvinces(); } setTimeout(function() { var pId = setProvDropdown('r_prov', appData.settings.provinsi_default); if(pId) loadRegencies(pId, 'r_kab'); }, 800); openModal('regModal'); }
+function openRegistrationModal() { 
+    document.getElementById('formReg').reset(); 
+    document.getElementById('r_preview').innerHTML = ""; 
+    document.getElementById('r_base64').value = ""; 
+    document.getElementById('r_preview_container').style.display = 'none'; 
+    
+    if (appData.settings) { 
+        document.getElementById('lblRegOrg').innerText = appData.settings.nama; 
+        
+        // Memaksa tulisan jadi "PROVINSI (NAMA PROV)" dan Huruf Besar
+        document.getElementById('lblRegProv').innerText = "PROVINSI " + (appData.settings.provinsi_default || "").toUpperCase(); 
+        
+        // Memunculkan Logo Organisasi di Formulir Pendaftaran
+        const logoEl = document.getElementById('lblRegLogo');
+        if (logoEl && appData.settings.logo) {
+            logoEl.src = getImageUrl(appData.settings.logo);
+            logoEl.style.display = "block";
+        } else if (logoEl) {
+            logoEl.style.display = "none";
+        }
+    } 
+    
+    var provSelect = document.getElementById('r_prov'); 
+    if (provSelect.options.length <= 1) { loadProvinces(); } 
+    
+    setTimeout(function() { 
+        var pId = setProvDropdown('r_prov', appData.settings.provinsi_default); 
+        if(pId) loadRegencies(pId, 'r_kab'); 
+    }, 800); 
+    
+    openModal('regModal'); 
+}
 
 function handleFileAndCrop(event) { var file = event.target.files[0]; if (!file) return; var reader = new FileReader(); reader.onload = function(e) { document.getElementById('r_preview_container').style.display = 'block'; document.getElementById('final_preview_container').innerHTML = ''; if (croppieInstance) croppieInstance.destroy(); croppieInstance = new Croppie(document.getElementById('crop_area'), { viewport: { width: 150, height: 200, type: 'square' }, boundary: { width: 300, height: 300 }, showZoomer: true, enableOrientation: true }); croppieInstance.bind({ url: e.target.result }); }; reader.readAsDataURL(file); }
 function saveCrop() { if (!croppieInstance) return; croppieInstance.result({ type: 'base64', size: { width: 600, height: 800 }, format: 'jpeg', quality: 0.8 }).then(function(base64) { document.getElementById('r_base64').value = base64; document.getElementById('r_preview_container').style.display = 'none'; document.getElementById('final_preview_container').innerHTML = '<p style="color:green; font-size:12px">Foto Berhasil Dikunci!</p><img src="'+base64+'" style="width:120px; border-radius:8px; border:2px solid #10b981">'; notify('success', 'Foto Siap!', ''); }); }
