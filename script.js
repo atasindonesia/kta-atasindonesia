@@ -61,14 +61,26 @@ function kembaliKePortal() {
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
-// ====================================================================
-// FUNGSI GABUNGAN APLIKASI 1 DAN 2
-// ====================================================================
+// ==========================================================
+// VARIABEL GLOBAL GABUNGAN (APLIKASI 1 & APLIKASI 2)
+// ==========================================================
 
+// --- Variabel Aplikasi 1 (Portal Pusat) ---
 let appDataCache = {}; let cropper = null; let cropperAdm = null; let quillPrivasi = null; let dashChart = null;
 let adminProvPage = 1; const adminProvPerPage = 10; let adminProvSearch = '';
 let adminPengurusPage = 1; const adminPengurusPerPage = 10; let adminPengurusSearch = '';
 let loadingTimerInterval;
+
+// --- Variabel Aplikasi 2 (KTA Provinsi) ---
+var appData = { settings: null, user: null, members: [] };
+var adminState = { page: 1, limit: 10, search: "", fUnit: "", fStatus: "", fKab: "", totalData: 0 };
+var croppieInstance = null;
+var activeCroppie = null; 
+var currentDetailMember = null;
+var chartInstance = null;
+var currentSearchMode = 'nik';
+var tableLoaderInterval = null;
+// ==========================================================
 
 function showLoadingAnim(text) {
     let counter = 5;
@@ -100,36 +112,76 @@ async function callGAS(action, payload = {}) {
     return await apiCall(action, payload);
 }
 
-function jalankanAplikasi() {
-    if(localStorage.getItem('sapaAdminSesi') === 'aktif') {
-        switchView('view-admin');
-        renderDashboard();
-        setTimeout(() => {
-            if(!document.querySelector('.ql-toolbar')) {
-                quillPrivasi = new Quill('#editor-privasi', { 
-                    theme: 'snow', 
-                    modules: { 
-                        toolbar: [ 
-                            [{ 'font': [] }, { 'size': ['small', false, 'large', 'huge'] }], 
-                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }], 
-                            ['bold', 'italic', 'underline', 'strike'], 
-                            [{ 'color': [] }, { 'background': [] }], 
-                            [{ 'script': 'sub'}, { 'script': 'super' }], 
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }], 
-                            [{ 'indent': '-1'}, { 'indent': '+1' }], 
-                            [{ 'align': [] }], 
-                            ['blockquote', 'code-block'], 
-                            ['link', 'image', 'video'], 
-                            ['clean'] 
-                        ] 
-                    }, 
-                    placeholder: 'Ketik Kebijakan Privasi Anda di sini secara lengkap dengan rapi...' 
-                }); 
-            }
-        }, 500);
-    } else {
-        initPublicView(); 
+function jalankanAplikasiKTA() {
+    const urlParams = new URLSearchParams(window.location.search);
+    var verifyId = urlParams.get('verify');
+    if(verifyId) {
+        renderValidationPage(verifyId);
+        return; 
     }
+
+    var safetyTimer = setTimeout(function() {
+        var l = document.getElementById('loader');
+        if(l && !l.classList.contains('hidden')) { 
+            showLoader(false); 
+            if(document.getElementById('app').innerHTML === "") { 
+                // FIX: Pastikan appData didefinisikan sebelum dipakai
+                appData.settings = {nama: 'Aplikasi Keanggotaan', singkatan: 'APP', logo:''}; 
+                renderLogin(); 
+            } 
+        }
+    }, 8000); 
+
+    var savedSession = localStorage.getItem('atas_session');
+    
+    showLoader(true, 'MENYIAPKAN DATA PROVINSI...');
+    
+    // Panggil API Master untuk ambil Setting Aplikasi 2
+    apiCall('getSettings').then(function(s) {
+        clearTimeout(safetyTimer); 
+        
+        // FIX: Simpan hasil balikan ke objek appData
+        appData.settings = s; 
+        
+        document.getElementById('app').className = ""; 
+        loadProvinces(); // Sekarang aman dipanggil karena appData sudah ada
+        
+        if (savedSession) { 
+            try { 
+                var tempUser = JSON.parse(savedSession); 
+                var userIdentifier = tempUser.data.username || tempUser.data.id;
+                
+                apiCall('loginUser', { username: userIdentifier, password: tempUser.data.password }).then(function(res) {
+                    showLoader(false);
+                    if(res.status === 'success') {
+                        appData.user = res;
+                        localStorage.setItem('atas_session', JSON.stringify(res));
+                        res.role.includes('admin') ? renderAdmin() : renderMember();
+                    } else {
+                        localStorage.removeItem('atas_session');
+                        renderLogin();
+                    }
+                }).catch(function() { showLoader(false); renderLogin(); });
+                
+            } catch(e) { 
+                localStorage.removeItem('atas_session'); 
+                showLoader(false);
+                renderLogin(); 
+            } 
+        } else { 
+            showLoader(false);
+            renderLogin(); 
+        } 
+    }).catch(function(err){ 
+        clearTimeout(safetyTimer); 
+        showLoader(false); 
+        // FIX: Tampilkan error dari backend Master
+        Swal.fire("Gagal Terhubung", "Koneksi ke Database Provinsi Gagal: " + err.message, "error"); 
+        
+        // Pancing agar tetap muncul form login walau error (untuk debug)
+        appData.settings = {nama: 'Error Database', singkatan: 'ERR', logo:''};
+        renderLogin();
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => { 
