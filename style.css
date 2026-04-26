@@ -140,7 +140,7 @@ input, button, select, textarea {
 #wrapper-kta .glass-card { 
   background: rgba(255,255,255,0.9); backdrop-filter: blur(25px); 
   border-radius: 24px; padding: 20px; width: 100%; 
-  max-width: 500px;
+  max-width: 520px;
   text-align: center; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.25); 
   animation: slideUp 0.8s ease-out; margin-top: 60px; 
 }
