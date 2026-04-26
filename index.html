@@ -278,7 +278,13 @@
                 </div>
                 
                 <div id="menu-provinsi" class="menu-content hidden">
-                    <div class="flex flex-col sm:flex-row justify-between mb-4 gap-2"><h2 class="text-2xl font-bold">Daftar Anggota Provinsi</h2><button onclick="openFormPortal('provinsi')" class="bg-green-600 text-white px-3 py-2 sm:py-1 rounded shadow">+ Tambah</button></div>
+                  <div class="flex flex-col sm:flex-row justify-between mb-4 gap-2">
+                    <h2 class="text-2xl font-bold">Daftar Anggota Provinsi</h2>
+                     <div>
+                     <button onclick="jalankanSyncStatistik()" class="bg-blue-600 text-white px-3 py-2 sm:py-1 rounded shadow mr-2"><i class="fa fa-sync"></i> Sync Statistik</button>
+                     <button onclick="openFormPortal('provinsi')" class="bg-green-600 text-white px-3 py-2 sm:py-1 rounded shadow">+ Tambah</button>
+                   </div>
+                </div>
                     <div class="mb-4 relative"><input type="text" id="adminSearchProv" onkeyup="filterAdminProv()" placeholder="Cari Nama Provinsi..." class="w-full border p-2 rounded shadow-sm"></div>
                     <div class="bg-white rounded shadow overflow-x-auto"><table class="min-w-full"><tbody id="table-provinsi"></tbody></table></div>
                     <div id="pagination-provinsi" class="flex justify-center flex-wrap gap-2 mt-4 hidden"></div>
@@ -589,9 +595,12 @@
         </div>
 
         <div id="regModal" class="modal">
-            <div class="modal-content" style="max-width:600px">
-                <div style="text-align:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px">
-                    <h3 style="color:#4f46e5; margin:0 0 10px 0">Formulir Pendaftaran Anggota</h3>
+            <div class="modal-content" style="max-width:600px; position:relative;">
+                
+                <button type="button" onclick="closeModalKTA('regModal')" style="position:absolute; top:15px; right:20px; border:none; background:none; font-size:32px; color:#ef4444; cursor:pointer; z-index:50;">&times;</button>
+
+                <div style="text-align:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px; padding-top:10px;">
+                    <h3 style="color:#4f46e5; margin:0 0 10px 0; padding-right:20px;">Formulir Pendaftaran Anggota</h3>
                     <img id="lblRegLogo" src="" alt="Logo" style="height:55px; object-fit:contain; margin: 0 auto 10px auto; display:none;">
                     <h4 id="lblRegOrg" style="margin:0; font-weight:700; color:#333; font-size:16px">Loading...</h4>
                     <p id="lblRegProv" style="margin:0; color:#4f46e5; font-size:14px; font-weight:bold; text-transform:uppercase; margin-top:4px;">Loading...</p>
